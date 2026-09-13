@@ -56,9 +56,9 @@ No client secret is used. Device codes and returned tokens must never be forward
 tool output, ordinary logs, or model context.
 
 The client ID must come from an actual registered GitHub App with device flow enabled. The
-module does not embed a default Client ID. Ordinary users can reuse the registered
+low-level device module requires an explicit Client ID; the shared runtime defaults to the registered
 [AIPOCH Connector App](https://github.com/apps/aipoch-connector), public Client ID
-`Iv23liAWWYs4LOqm1YAg`, through `setup --github-client-id`; registering another App is unnecessary.
+`Iv23liAWWYs4LOqm1YAg`, for new and existing configurations without an override. Registering another App is unnecessary. Explicit `setup --github-client-id CLIENT_ID` overrides are preserved. This default does not start authorization automatically.
 With a GitHub App, leave OAuth scopes empty and configure only required repository read
 permissions. AIPOCH Connector's public identity and Contents/Metadata read permissions, final
 user consent and authenticated reads are recorded in [the real authorization evidence](verification/github-authorization.md).

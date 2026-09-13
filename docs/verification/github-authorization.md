@@ -84,7 +84,7 @@ The current repository license observation is not an assertion about the license
 historical fixed-commit README bytes. No repository file was written or executed by these read
 checks.
 
-## Reuse the registered App
+## Reuse the registered App (published alpha behavior)
 
 After installing the reviewed Connector package and opening Open-Science, ordinary users can
 reuse [AIPOCH Connector](https://github.com/apps/aipoch-connector); they do not need to register
@@ -95,6 +95,8 @@ aipoch-connector setup --github-client-id Iv23liAWWYs4LOqm1YAg
 aipoch-connector github auth start
 aipoch-connector github auth status
 ```
+
+The following source update on 2026-09-14 defaults the public Client ID when no override is configured; users of that build can omit the setup flag. The commands and explicit-configuration description here record the unchanged published alpha and its historical verification.
 
 The user completes GitHub's final authorization personally. The public Client ID is explicit
 local configuration, not a newly embedded package default. The same option still accepts another

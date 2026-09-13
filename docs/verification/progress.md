@@ -220,3 +220,15 @@ The documentation commits `2e05ea746545b81db4c644855b101f8723a41acc` (Connector)
 `2db16872949eec6688ab7ae65beab9669fc4ed24` (Network) subsequently passed their hosted checks in
 runs `34758747678` and `34758747510`, respectively. These are distinct from the released tag and
 deployed artifact identities recorded above.
+
+## Source update — 2026-09-14: default GitHub App
+
+The shared runtime now defaults to public Client ID `Iv23liAWWYs4LOqm1YAg` for new
+and existing configurations without an override. Explicit custom Client IDs are preserved.
+Reading an existing configuration does not rewrite it. Authorization remains an explicit user
+action; the low-level device-flow API and browser protocol are unchanged.
+
+Local `npm run check` passed typecheck, 103/103 tests and build after this code change,
+including default/legacy/custom configuration coverage and runtime restart integration checks.
+The published alpha assets and tag were not changed. This update does not add live
+authorization, refresh/revocation or platform compatibility evidence.

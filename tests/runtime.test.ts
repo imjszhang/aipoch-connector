@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { createServer } from 'node:net';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { adminRequest, configurationDigest, ensureRuntime, runtimeRecord, runtimeVersion, saveConfiguration,
+import { adminRequest, configuration, DEFAULT_GITHUB_CLIENT_ID, configurationDigest, ensureRuntime, runtimeRecord, runtimeVersion, saveConfiguration,
   type Configuration, type RuntimeIdentity } from '../src/runtime.js';
 import { Inbox } from '../src/inbox.js';
 import { digest } from '../src/contracts.js';
@@ -37,6 +37,22 @@ async function cors(dir: string, origin: string) {
   return fetch(record.url + '/v1/pairings', { method: 'OPTIONS', headers: { Origin: origin,
     'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'content-type' }, signal: AbortSignal.timeout(2_000) });
 }
+
+test('new and existing configurations default to the public App while preserving overrides', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'aipoch-config-'));
+  try {
+    assert.equal((await configuration(dir)).githubClientId, DEFAULT_GITHUB_CLIENT_ID);
+    const legacy: Configuration = {version:1, port:47821, origins:['https://aipoch.network']};
+    await saveConfiguration(dir, legacy);
+    const before = await readFile(join(dir, 'config.json'), 'utf8');
+    const loaded = await configuration(dir);
+    assert.equal(loaded.githubClientId, DEFAULT_GITHUB_CLIENT_ID);
+    assert.equal(configurationDigest(legacy), configurationDigest(loaded));
+    assert.equal(await readFile(join(dir, 'config.json'), 'utf8'), before);
+    await saveConfiguration(dir, {...legacy, githubClientId:'custom-client'});
+    assert.equal((await configuration(dir)).githubClientId, 'custom-client');
+  } finally { await rm(dir, {recursive:true, force:true}); }
+});
 
 test('configuration digest normalizes origin order and detects every startup setting', () => {
   const config: Configuration = {version:1, port:47821, origins:['https://aipoch.network', 'http://127.0.0.1:4193']};

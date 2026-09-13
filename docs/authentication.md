@@ -52,7 +52,9 @@ or selecting an unrelated credential.
 ## Device authorization and disconnect
 
 The device flow needs a configured, registered GitHub application client ID and device flow
-support. This implementation does not create an application or assume one is registered. The
+support. The shared runtime defaults to the registered AIPOCH Connector public Client ID
+`Iv23liAWWYs4LOqm1YAg`; an explicit local Client ID overrides it. No authorization starts
+automatically. The
 local Connector owns polling, timeout/cancellation, token storage and any future refresh. A
 device challenge and resulting credentials must not be written to the public catalog or included
 in request receipts.

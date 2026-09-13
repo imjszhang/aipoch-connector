@@ -15,6 +15,9 @@ import { GithubClient } from './github/index.js';
 import { GithubAuth } from './github-auth.js';
 import { CredentialStore } from './credentials.js';
 
+// Public application identity; authorization still requires each user's consent.
+export const DEFAULT_GITHUB_CLIENT_ID = 'Iv23liAWWYs4LOqm1YAg';
+
 export interface Configuration { version: 1; port: number; origins: string[]; openScienceConfigRoot?: string; githubClientId?: string; catalogManifestUrl?: string }
 export const defaultDataDir = () => join(homedir(),process.platform==='darwin'?'Library/Application Support/AIPOCH Connector':'.local/share/aipoch-connector');
 export async function ownerDirectory(dir: string) {
@@ -27,13 +30,13 @@ export async function configuration(dir: string): Promise<Configuration> {
   await ownerDirectory(dir);
   let value: Configuration;
   try { value=JSON.parse(await readFile(join(dir,'config.json'),'utf8')); }
-  catch (e:any) { if(e.code!=='ENOENT') throw new Error('Connector configuration is invalid; the existing file was preserved.'); return {version:1,port:DEFAULT_PORT,origins:['https://aipoch.network']}; }
+  catch (e:any) { if(e.code!=='ENOENT') throw new Error('Connector configuration is invalid; the existing file was preserved.'); return {version:1,port:DEFAULT_PORT,origins:['https://aipoch.network'],githubClientId:DEFAULT_GITHUB_CLIENT_ID}; }
   if(value.version!==1 || !Number.isInteger(value.port) || value.port<1024 || value.port>65535 || !Array.isArray(value.origins)) throw new Error('Unsupported Connector configuration.');
   for(const origin of value.origins) {
     const u=new URL(origin);
     if(u.origin!==origin || (u.protocol!=='https:' && !(u.protocol==='http:' && ['127.0.0.1','localhost','[::1]'].includes(u.hostname)))) throw new Error('Origins must be exact HTTPS origins or explicitly configured loopback development origins.');
   }
-  return value;
+  return {...value, githubClientId: value.githubClientId ?? DEFAULT_GITHUB_CLIENT_ID};
 }
 export async function saveConfiguration(dir:string,config:Configuration) {
   await ownerDirectory(dir);
@@ -53,7 +56,7 @@ export function configurationDigest(config: Configuration): string {
   return digest(JSON.stringify({ version: config.version, port: config.port,
     origins: [...new Set(config.origins)].sort(),
     openScienceConfigRoot: config.openScienceConfigRoot ? resolve(config.openScienceConfigRoot) : null,
-    githubClientId: config.githubClientId ?? null, catalogManifestUrl: config.catalogManifestUrl ?? null }));
+    githubClientId: config.githubClientId ?? DEFAULT_GITHUB_CLIENT_ID, catalogManifestUrl: config.catalogManifestUrl ?? null }));
 }
 /** Compare actual runtime code too: local builds can change without a package-version bump. */
 export async function runtimeVersion(): Promise<Pick<RuntimeIdentity, 'packageVersion' | 'codeSha256' | 'nodeVersion'>> {

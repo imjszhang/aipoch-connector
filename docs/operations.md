@@ -39,15 +39,15 @@ If creation returns `result_unconfirmed` or a host lifecycle error, inspect `pro
 
 Anonymous reads require no configuration. `github resolve URL` accepts an existing public repository/tree/blob URL without Network membership. `github preview URL --ref FULL_COMMIT --path FILE` provides the selected regular file's digest. After reviewing source, full commit, license/conditions and destination, `github acquire URL --ref FULL_COMMIT --path FILE --sha256 DIGEST --destination NEW_DIRECTORY --operation-id UNIQUE_ID` writes that file into a new directory. It never overwrites an existing destination or executes a hook/package script. A failed disk write can leave a partial new directory; inspect it explicitly before choosing another action.
 
-Optional device authorization can reuse the registered [AIPOCH Connector App](https://github.com/apps/aipoch-connector), with Device Flow enabled and repository Contents/Metadata read permissions. Ordinary users do not need to register their own App. After installation, with Open-Science already open, configure its public Client ID and start authorization:
+Optional device authorization can reuse the registered [AIPOCH Connector App](https://github.com/apps/aipoch-connector), with Device Flow enabled and repository Contents/Metadata read permissions. Ordinary users do not need to register their own App. After installation, with Open-Science already open, run setup and start authorization:
 
 ```sh
-aipoch-connector setup --github-client-id Iv23liAWWYs4LOqm1YAg
+aipoch-connector setup
 aipoch-connector github auth start
 aipoch-connector github auth status
 ```
 
-Successful setup verifies that the configuration is active. This Client ID remains explicit local configuration, not an embedded package default; `--github-client-id` can still select another registered App with Device Flow enabled and suitable read permissions.
+These defaults apply from `0.1.0-alpha.2`; the older `0.1.0-alpha.1` tarball requires the explicit Client ID flag. Successful setup verifies that the configuration is active. The public Client ID `Iv23liAWWYs4LOqm1YAg` is now the default for new and existing configurations without an override; `--github-client-id` can still select another registered App with Device Flow enabled and suitable read permissions.
 
 `start` returns the user-facing verification URL/code; the human completes authorization on GitHub. The runtime waits locally and stores successful credentials in its own macOS Keychain item. `status` reports state without access/refresh tokens. `github auth cancel` stops local waiting; it does not promise revocation of an authorization already completed at GitHub. `github auth logout` removes the local credential and explains that remote authorization can also be revoked in GitHub settings. MCP offers `github_authorization_status` and `start_github_authorization`; website sessions have neither capability.
 

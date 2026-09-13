@@ -4,7 +4,7 @@ AIPOCH Connector brings research discovered on [AIPOCH Network](https://aipoch.n
 
 GitHub remains the source of code, documentation, identity and collaboration. Existing public repositories work without an AIPOCH manifest or prior Network membership. Network stays a static, anonymously useful website; it does not receive GitHub credentials or the Open-Science daemon token.
 
-**Status: published `0.1.0-alpha.1`.** [Download the GitHub alpha release](https://github.com/imjszhang/aipoch-connector/releases/tag/v0.1.0-alpha.1). Hosted CI and release checks passed 101 tests; real local installation, 20-tool discovery, reference receipt, project association, file acquisition and recovery were verified against an isolated Open-Science development host. The [production Chrome/macOS flow](docs/verification/production-browser.md) also passed pairing, reviewed resource delivery with a matching visible/durable receipt, disconnect and receipt retention after a Network recovery fix. [Real GitHub App authorization](docs/verification/github-authorization.md), macOS Keychain readback and authenticated public-source reads passed. The package name `aipoch-connector` is a candidate name, **not a claim that this project is published on npm or owns that registry name**. Do not install by the bare registry name on the basis of this README. Use this checkout or a reviewed release tarball.
+**Source version: `0.1.0-alpha.2`.** [GitHub releases](https://github.com/imjszhang/aipoch-connector/releases) contain published packages. The previous `0.1.0-alpha.1` release established the following verification evidence. Hosted CI and release checks passed 101 tests; real local installation, 20-tool discovery, reference receipt, project association, file acquisition and recovery were verified against an isolated Open-Science development host. The [production Chrome/macOS flow](docs/verification/production-browser.md) also passed pairing, reviewed resource delivery with a matching visible/durable receipt, disconnect and receipt retention after a Network recovery fix. [Real GitHub App authorization](docs/verification/github-authorization.md), macOS Keychain readback and authenticated public-source reads passed. The package name `aipoch-connector` is a candidate name, **not a claim that this project is published on npm or owns that registry name**. Do not install by the bare registry name on the basis of this README. Use this checkout or a reviewed release tarball.
 
 ## Install
 
@@ -16,7 +16,7 @@ From this repository:
 npm ci
 npm run check
 npm pack --ignore-scripts
-npm install --global --ignore-scripts ./aipoch-connector-0.1.0-alpha.1.tgz
+npm install --global --ignore-scripts ./aipoch-connector-0.1.0-alpha.2.tgz
 aipoch-connector help
 ```
 
@@ -46,12 +46,12 @@ The Connector uses `http://127.0.0.1:47821`. Only `https://aipoch.network` is al
 GitHub tools resolve existing URLs, list fixed-version files, preview a selected regular file and its SHA-256, and acquire that file into a **new** destination after explicit approval. They do not clone or synchronize complete repositories, overwrite files, install packages or run research. Public reads work without GitHub authorization. For optional device authorization with macOS Keychain storage, ordinary users can reuse the registered [AIPOCH Connector GitHub App](https://github.com/apps/aipoch-connector); registering another App is unnecessary:
 
 ```sh
-aipoch-connector setup --github-client-id Iv23liAWWYs4LOqm1YAg
+aipoch-connector setup
 aipoch-connector github auth start
 aipoch-connector github auth status
 ```
 
-Run these after installation with Open-Science already open, then personally complete GitHub's authorization. The public Client ID is explicit local configuration; it is not embedded as a new package default. The setup option remains available for another registered App with Device Flow enabled and suitable read permissions. See [operations](docs/operations.md), [GitHub boundaries](docs/github.md) and the [real authorization record](docs/verification/github-authorization.md).
+These simplified commands apply from `0.1.0-alpha.2`; the older `0.1.0-alpha.1` tarball needs `setup --github-client-id Iv23liAWWYs4LOqm1YAg`. Run these after installation with Open-Science already open, then personally complete GitHub's authorization. The public Client ID `Iv23liAWWYs4LOqm1YAg` is the default when no override is configured, including for existing configurations. Authorization still requires your consent. The `--github-client-id` setup option remains available for another registered App with Device Flow enabled and suitable read permissions. See [operations](docs/operations.md), [GitHub boundaries](docs/github.md) and the [real authorization record](docs/verification/github-authorization.md).
 
 Website Saved/Recently viewed remain browser-local. The Connector does not migrate or synchronize them and never exposes the entire private project list to a website.
 
