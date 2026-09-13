@@ -1,0 +1,42 @@
+{
+  "name": "aipoch-connector",
+  "version": "0.1.0-alpha.1",
+  "description": "Local connection between AIPOCH Network, GitHub and research workbenches",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24.18.1 <25"
+  },
+  "bin": {
+    "aipoch-connector": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "vendor",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "docs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imjszhang/aipoch-connector.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "check": "npm run typecheck && npm test && npm run build",
+    "dev": "tsx src/cli.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "ajv": "8.20.0",
+    "zod": "4.6.4"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.4",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2"
+  }
+}

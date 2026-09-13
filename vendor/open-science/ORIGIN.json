@@ -1,0 +1,25 @@
+{
+  "package": "@aipoch/open-science",
+  "version": "0.1.0",
+  "repository": "https://github.com/aipoch/open-science",
+  "commit": "9abd170b5269c650a9af7e3e3701ab378d05e153",
+  "sourceDirectory": "packages/open-science",
+  "license": "Apache-2.0",
+  "reason": "npm package was unavailable (404) when first integrated on 2026-09-13.",
+  "files": {
+    "index.mjs": "382bdd5d8a05d5a04e00d8d8ad8250b9d2ce1a92538e497de9bc9ff74f9e3cee",
+    "index.d.ts": "c4e51bef24292aea1fe523649fb78fbbc63a4a71545f90ce31e20769f52d6616",
+    "config-root.mjs": "604d41c293206b48f5df2a1cb31140d1c710640bc5542d9d989fedd3402bc6e8",
+    "cli.mjs": "0fb3d68ff423453b3b1f3724b6094292b6375ab46dd5b3a690f89d4c54114893",
+    "codex-login.mjs": "8d4b9fbf56675a89a90f5e5d67a19ad3a3d49b9048fa0f209aaf2e617eee6ab3",
+    "locate-app.mjs": "edc6efd65452ed07a8be7cd27dc387f00490b34c7b6f8b5bf7f618e7ddddb546",
+    "rollback-to-0.7.3.mjs": "ad32520eb47a49d57f8798b578776c15cbb09dfbe638e0ab33651e28edd96867",
+    "package.json": "fa013e6f4c619939cfba683341b766ce08f6f64bd86f66e71116af49d8bea2c5",
+    "README.md": "3585567f399a9cbaf10afab5c67d42ce31c372b469c26e4b73c73e3de296c0f1",
+    "CLI.md": "a342b39dd8286810651fa9368d210438e0c6e99e8b0c7b0552dc2cf3791d775e",
+    "LICENSE": "b038148f912bdd6e61e33e56214d02c4d8a9640f7a637e21dfcf939332816979"
+  },
+  "localAdditions": {
+    "index.d.mts": "Exact copy of upstream index.d.ts for TypeScript NodeNext .mjs declaration resolution."
+  }
+}

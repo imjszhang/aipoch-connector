@@ -1,0 +1,84 @@
+name: Package a GitHub release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: connector-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.repository == 'imjszhang/aipoch-connector'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    env:
+      CI: 'true'
+      AIPOCH_GITHUB_TOKEN: ''
+      NODE_AUTH_TOKEN: ''
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - name: Check out the release tag without persistent credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Use the pinned Node runtime
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.18.1'
+          package-manager-cache: false
+      - name: Verify tag matches the exact package version
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFileSync } from 'node:fs';
+          const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+          assert.match(pkg.version, /^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/);
+          assert.equal(process.env.RELEASE_TAG, `v${pkg.version}`);
+          NODE
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Validate and build without a live workbench
+        run: npm run check
+      - name: Verify the independently installed package
+        run: node tests/package-smoke.mjs
+      - name: Prepare tarball, checksums and factual release notes
+        run: |
+          mkdir -p release
+          npm pack --ignore-scripts --json --pack-destination release > release/pack.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { createHash } from 'node:crypto';
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const [pkg] = JSON.parse(readFileSync('release/pack.json', 'utf8'));
+          assert.match(pkg.filename, /^aipoch-connector-\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?\.tgz$/);
+          const hash = createHash('sha256').update(readFileSync(`release/${pkg.filename}`)).digest('hex');
+          writeFileSync('release/SHA256SUMS', `${hash}  ${pkg.filename}\n`);
+          writeFileSync('release/RELEASE_NOTES.md', `Installable AIPOCH Connector ${pkg.version} from commit ${process.env.GITHUB_SHA}.\n\nDownload the tarball and SHA256SUMS, verify the checksum, and install the local tarball as described in the README. The package contains its pinned public Open-Science SDK/CLI with Apache-2.0 notices; no adjacent checkout is needed.\n\nThis workflow ran independent checks and package-install smoke tests. It does not establish real browser/host or GitHub OAuth compatibility beyond the evidence recorded in the included documentation. Received references, project association, acquisition and execution remain separate states.\n\nThis release is distributed through GitHub. No npm registry publication or Network deployment was performed by this workflow.\n`);
+          NODE
+      - name: Retain the exact release assets
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: aipoch-connector-${{ github.ref_name }}
+          path: |
+            release/*.tgz
+            release/SHA256SUMS
+            release/RELEASE_NOTES.md
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish downloadable GitHub Release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          flags=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" release/*.tgz release/SHA256SUMS \
+            --verify-tag --title "AIPOCH Connector $RELEASE_TAG" \
+            --notes-file release/RELEASE_NOTES.md "${flags[@]}"
