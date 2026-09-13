@@ -4,7 +4,7 @@ AIPOCH Connector brings research discovered on [AIPOCH Network](https://aipoch.n
 
 GitHub remains the source of code, documentation, identity and collaboration. Existing public repositories work without an AIPOCH manifest or prior Network membership. Network stays a static, anonymously useful website; it does not receive GitHub credentials or the Open-Science daemon token.
 
-**Status: `0.1.0-alpha.1`.** Source and protocol implementations are available; production browser/host compatibility and release publication require separate verification. The package name `aipoch-connector` is a candidate name, **not a claim that this project is published on npm or owns that registry name**. Do not install by the bare registry name on the basis of this README. Use this checkout or a reviewed release tarball.
+**Status: published `0.1.0-alpha.1`.** [Download the GitHub alpha release](https://github.com/imjszhang/aipoch-connector/releases/tag/v0.1.0-alpha.1). Hosted CI and release checks passed 101 tests; real local installation, 20-tool discovery, reference receipt, project association, file acquisition and recovery were verified against an isolated Open-Science development host. Production browser pairing and live GitHub App authorization remain pending. The package name `aipoch-connector` is a candidate name, **not a claim that this project is published on npm or owns that registry name**. Do not install by the bare registry name on the basis of this README. Use this checkout or a reviewed release tarball.
 
 ## Install
 
@@ -20,7 +20,7 @@ npm install --global --ignore-scripts ./aipoch-connector-0.1.0-alpha.1.tgz
 aipoch-connector help
 ```
 
-Once a release is published, download its exact `.tgz` and `SHA256SUMS` from [GitHub Releases](https://github.com/imjszhang/aipoch-connector/releases), verify the downloaded checksum, then install that local `.tgz` with the same install command. Installation resolves the declared runtime dependencies through npm; it does not install or start Open-Science. There is no automatic npm publication workflow.
+Download the release’s exact `.tgz` and `SHA256SUMS` from [GitHub Releases](https://github.com/imjszhang/aipoch-connector/releases), verify the downloaded checksum, then install that local `.tgz` with the same install command. Installation resolves the declared runtime dependencies through npm; it does not install or start Open-Science. There is no automatic npm publication workflow.
 
 The public Open-Science SDK/CLI is pinned and included under `vendor/open-science` because that SDK was unavailable from npm when integrated. It is **Apache-2.0**, separate from this project's MIT license. The desktop application, private settings and research data are not included. See [third-party notices](THIRD_PARTY_NOTICES.md) and [host compatibility](docs/open-science.md).
 
@@ -58,7 +58,7 @@ These checks use synthetic host/HTTP fixtures and isolated temporary files. They
 
 The latest Connector check passed typecheck, 100 tests and build; the final operation-ID return change passed five targeted checks and another build. Independent package smoke and a real installation into an unrelated prefix passed. That installed `0.1.0-alpha.1` package registered through the public SDK against the rebuilt Open-Science `0.28.0` development host, started its own runtime, exposed 20 MCP tools, and successfully queried connection status, received references and durable operations.
 
-Local in-app-browser reference receipt, actual project association/creation, exact acquired-file bytes and host restart recovery also passed using synthetic implementation-test actions. Uninstalling the isolated package stopped its runtime while preserving two receipts, one association, two operation records and the acquired file's verified hash. Network passed 255 checks plus six browser-fixture checks each for root and subpath builds; its adapter source is pushed to main. Production HTTPS deployment/testing, additional browsers, a distributed Open-Science application's compatibility, Connector publication and real GitHub App authorization remain pending. See the [current evidence and remaining checks](docs/verification/progress.md).
+Local in-app-browser reference receipt, actual project association/creation, exact acquired-file bytes and host restart recovery also passed using synthetic implementation-test actions. Uninstalling the isolated package stopped its runtime while preserving two receipts, one association, two operation records and the acquired file's verified hash. Network passed 255 checks plus six browser-fixture checks each for root and subpath builds; its adapter source is pushed to main. The GitHub alpha release and real-mode Pages deployment are published, with hosted checks passing. Production browser pairing, additional browsers, distributed Open-Science installer compatibility and real GitHub App authorization remain pending. See the [current evidence and remaining checks](docs/verification/progress.md).
 
 - [Product boundaries](docs/product-boundaries.md)
 - [Browser protocol](docs/protocol.md)
@@ -67,3 +67,5 @@ Local in-app-browser reference receipt, actual project association/creation, exa
 - [Implementation plan and evidence](docs/implementation-plan.md)
 
 Original code is [MIT](LICENSE). Upstream projects and vendored components retain their own licenses.
+
+Publication and downloaded checksums are recorded in [the alpha release verification](docs/verification/alpha-release.md).

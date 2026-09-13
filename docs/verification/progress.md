@@ -9,7 +9,7 @@ as evidence for changed behavior.
 
 | Area | Evidence at this checkpoint | What it establishes |
 | --- | --- | --- |
-| Public repository | GitHub repository lookup returned `PUBLIC`, URL `https://github.com/imjszhang/aipoch-connector`, and `isEmpty: true` | The public remote exists; the initial source push/hosted checks were not yet present at this lookup |
+| Public repository and alpha | Public main source `98ad82b246805cdcdf27712c4ffbf05e8f25f44d`; GitHub alpha release published and independently downloaded | [Release verification](alpha-release.md) records exact tag, 101/101 hosted checks and tarball checksum |
 | Distribution independence | `npm run build` and `node tests/package-smoke.mjs` passed in the implementation task | Tarball installs into a fresh unrelated directory; CLI help, public SDK imports/integrity and in-memory SQLite work without a runtime/host or neighboring checkout |
 | Runtime configuration and ownership | `npx tsx --test tests/runtime.test.ts`: **7/7 passed** after the concurrent-save guard; typecheck passed | Random-port child runtimes in isolated directories verified origin/client/profile/port digest changes, active CORS, durable pending-operation preservation, single startup, scoped restart, legacy refusal and typed CLI status; no real host or the active 47821 runtime was used |
 | Latest complete Connector check | Implementation owner ran `npm run check`: typecheck, **100/100 tests**, and build passed after runtime/operation recovery changes | The final operationId preparation-result passthrough subsequently passed **5 targeted checks** and another build; release publication remains separate |
@@ -23,11 +23,10 @@ as evidence for changed behavior.
 | Network adapter/state checks | Latest Network run passed **255 checks**; root and subpath browser protocol-fixture runs each passed **6/6** | Final local adapter/site and deployment-path fixture checks passed; production HTTPS remains separate |
 | Exact request limits | Network adapter tests passed 19 checks after adding content UTF-8 ≤256 KiB and serialized-envelope UTF-8 ≤260 KiB checks; typecheck passed | Multibyte content and JSON escaping cannot bypass the two limits; this is independent of live bridge availability |
 | Network real-mode artifact | Static build passed with 96 pages and 119 files | A real-mode candidate can be built without a running client; it used a local offline snapshot and was not deployed |
-| Hosted Network candidate | Fresh candidate workflow [34757888181](https://github.com/imjszhang/aipoch-network/actions/runs/34757888181) succeeded; Network CI [34757788508](https://github.com/imjszhang/aipoch-network/actions/runs/34757788508) was still running at this checkpoint | Hosted candidate generation passed; formal Pages deployment had not been triggered |
+| Hosted Network candidate | Fresh candidate workflow [34757888181](https://github.com/imjszhang/aipoch-network/actions/runs/34757888181) succeeded; Network CI [34757788508](https://github.com/imjszhang/aipoch-network/actions/runs/34757788508) and Pages [34758098215](https://github.com/imjszhang/aipoch-network/actions/runs/34758098215) succeeded | Real-mode artifact is deployed; production browser pairing is a separate pending check |
 | Network source publication | Adapter source pushed to `main`, commit `e3eb65895b1bebe64f3cefcf18996213bf525313` | Code is on GitHub; a push does not establish real-mode Pages activation or HTTPS transport success |
 | Historical browser failure path | Codex in-app browser visited the real local Network page at `http://127.0.0.1:4190` while the host was stopped; no successful connection was claimed | No false Connected state was shown. Port 4190 was later found to be rejected by Node fetch's standard bad-port list, so it is not a usable runtime catalog source or positive transport test |
 | Actual local browser pairing and receipt | Codex in-app browser at `http://127.0.0.1:4193` → real Connector bridge on 47821 → rebuilt real `0.28.0` host completed pairing, changed the homepage, retained AnnData selection, and showed Reference received matching the durable inbox | A real local browser/bridge/host reference chain passed; later action/lifecycle checks are recorded below; production HTTPS and other browsers remain unverified |
-
 | Final independent package and MCP | Final tarball installed into an unrelated prefix; its CLI `setup` registered via the public SDK, started that package's runtime, and SDK `testConnector` succeeded with `toolCount: 20`; real stdio listed 20 tools and successfully called `connection_status`, `list_received_references`, `list_operations` | Actual packaged Connector execution against the rebuilt development host, independent of neighboring source repositories; not an official Open-Science installer certificate |
 | Isolated package removal and retention | SDK disabled/removed the task's exact MCP entry; unconfigured local credential logout, runtime stop and prefix npm uninstall completed; `packageRemoved: true`, `runtimeStopped: true` | Two receipts, one association, two operation records and the acquired README's exact SHA remained; no claim of tested GitHub credential revocation |
 | Additional current-guard resource receipt | Actual resource request `reference-0e3407b5-39c2-4917-8a1c-065b7a3b47eb` returned durable exact-content digest `37d08af4bcf5a3062d40003def2a2852e261b625c9bba8bfb5b81f6e01a7e52a` for snapshot `26b7d31efa5dd84150f48a9c` | A further real resource reference passed the complete current catalog review guard; not just the earlier guard/AnnData flow |
@@ -58,7 +57,7 @@ task compared the UI receipt with the persisted Connector inbox:
 | Website origin | `http://127.0.0.1:4193` |
 | Connector protocol | `1.0`, real loopback transport |
 | Host | Rebuilt real Open-Science development host reporting `0.28.0`, independent profile |
-| Connector implementation commit | Initial commit remains pending; no SHA is inferred from the pinned SDK origin or receipt |
+| Connector implementation commit | `98ad82b246805cdcdf27712c4ffbf05e8f25f44d`; final source and tag identity, not a claim that the earlier historical receipt ran every later fix |
 | Published Network implementation commit | `e3eb65895b1bebe64f3cefcf18996213bf525313` on `main`; this is subsequent source publication, not the asserted build identity of the earlier browser observation |
 
 The exact browser/OS build numbers and final reproducible host-build identity are not recorded in
@@ -119,27 +118,21 @@ agents to approve product actions on a research user's behalf.
 
 ## Remaining acceptance
 
-1. **Deploy and verify production HTTPS.** Local real pairing, two durable references and
-   root/subpath protocol fixtures passed. Explicitly choose real mode in the Pages release,
-   deploy and test `https://aipoch.network` with real local-network permissions. Record the
-   browser/OS version and actual result. Preserve unavailable-mode rollback and directory
-   withdrawal behavior. Network source is pushed and the hosted fresh candidate succeeded; formal deployment has not been triggered. Inspect the still-running Network CI before release.
-2. **Scope additional compatibility.** Final installed Connector setup/discovery/recovery
-   passed against the rebuilt `0.28.0` development host. An official distributed Open-Science
-   application, additional browsers and broader operating-system support require their own
-   evidence before advertisement. Do not rerun the completed local lifecycle merely to fill a
-   checklist or label all platforms supported.
-3. **Finish optional GitHub authorization.** The registered GitHub App client ID still awaits
-   the user. Real device consent, protected storage, refresh, cancellation/logout/revocation
-   and explicitly authorized private-source access are not verified by anonymous reads or
-   synthetic credential tests. Keep public anonymous access as the verified path until then.
-4. **Publish Connector evidence.** Initial Connector commit/push, hosted CI and a matching
-   tagged GitHub Release with downloadable `.tgz`/`SHA256SUMS` remain pending. Record actual
-   commit, release URL and artifact digest after publication. npm publication remains excluded.
-5. **Recheck only subsequent changes.** Current local evidence is 100 Connector checks plus
-   five targeted final-change checks/build, package smoke, actual installed-package testing,
-   255 Network checks and root/subpath browser fixtures each 6/6. New code changes require
-   relevant validation; documentation synchronization alone does not require repeating them.
+1. **Complete production browser pairing.** Real-mode Pages deployment, independent artifact
+   review, public HTTPS build-info/manifest and release smoke passed. Browser navigation remains
+   queued/timed out as detailed below. Once the user opens the production page, verify the actual
+   origin, pairing, reviewed reference and durable receipt without bypassing browser permissions.
+2. **Finish existing-App authorization.** The public Client ID and Device Flow setting await
+   the user. Real consent and authenticated access remain unverified; public anonymous reads and
+   synthetic credential tests do not establish them.
+3. **Keep compatibility claims bounded.** The installed Connector was tested against the rebuilt
+   Open-Science development host. Additional browsers, official host installers and operating
+   systems are future compatibility checks before advertising support, not permission to infer
+   support from fixtures.
+
+Published source, 101-test hosted CI, release artifact/checksum and real-mode Pages deployment
+are complete. Documentation changes do not require repeating the already-passed implementation
+checks. New code changes require the relevant validation.
 
 ## Resume without losing the product boundary
 
@@ -153,3 +146,26 @@ agents to approve product actions on a research user's behalf.
 - Real fixture tests, live failure-path checks, approved end-to-end behavior and production
   releases have separate statuses. Update this file with exact new evidence rather than marking
   all phases complete from one successful command.
+
+
+## Published state and outstanding user inputs
+
+The public alpha source, tag, hosted 101-test checks and independently downloaded tarball are
+verified in [alpha-release.md](alpha-release.md). Network deployed real mode from
+`e3eb65895b1bebe64f3cefcf18996213bf525313` in successful run `34758098215`. Its public
+HTTPS build-info and manifest returned HTTP 200: protocol `1.0`, endpoint
+`http://127.0.0.1:47821`, snapshot `26ba825d9cdfbeeabbdb7b98`. The source refresh, archive
+and full file tree were independently verified before dispatch. This is publication and HTTP
+verification, not production browser session evidence.
+
+The in-app browser could read and operate the real local website, but attempts to navigate to
+the production HTTPS page timed out twice at 30 seconds and once at 60 seconds. Existing tabs
+remained on the local page or about:blank, so no production pairing was inferred. The Codex
+open-page tool subsequently returned `queued`; the user was asked to bring this task forward
+and let the queued production page load. Native Codex app inspection was disallowed by the
+computer-use tool and was not bypassed. No browser warning or permission was dismissed.
+
+The user chose an existing GitHub App. Its public Client ID and Device Flow availability are
+still required for real authorization; no credentials have been requested or fabricated.
+Local public-source use remains verified. These two pending checks prevent declaring the
+complete implementation goal fully accepted, despite the published alpha and Pages artifact.

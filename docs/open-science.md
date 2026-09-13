@@ -181,7 +181,7 @@ cannot be used as the runtime's catalog source; the successful local chain used 
 not justify disabling browser/fetch protections. Production HTTPS, other browsers, official
 host-installation compatibility and real GitHub App authorization remain pending. The App
 client ID awaits the user. Network source is pushed to main at
-`e3eb65895b1bebe64f3cefcf18996213bf525313`; the initial Connector implementation commit is still pending.
+`e3eb65895b1bebe64f3cefcf18996213bf525313`; the published Connector alpha source is `98ad82b246805cdcdf27712c4ffbf05e8f25f44d`.
 The pinned SDK source commit must not be presented as either implementation commit or the
 rebuilt host's complete artifact identity.
 
