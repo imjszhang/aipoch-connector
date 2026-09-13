@@ -186,8 +186,12 @@ durable retention. The earlier unconfirmed project submission remains a distinct
 result and was not resent. See [production-browser.md](verification/production-browser.md).
 
 Other browsers, operating systems and official host installers still require their own
-compatibility evidence. Real GitHub App authorization awaits the user's existing App public
-Client ID and Device Flow availability. The successful production retest used Network
+compatibility evidence. Subsequent real GitHub authorization through the newly registered
+AIPOCH Connector App passed final user consent, fresh-process macOS Keychain readback and
+authenticated identity/public-source reads, with the live core independently matching source
+resolution and preview. This did not add a dependency on private host files or certify private
+repositories, live refresh/revocation or an official host installer. See
+[github-authorization.md](verification/github-authorization.md). The successful production retest used Network
 `bf4b365f1fff865e60bd76a6d0de20ccf5ec64db`, following its initial real-mode publication at
 `e3eb65895b1bebe64f3cefcf18996213bf525313`; the published Connector alpha source is `98ad82b246805cdcdf27712c4ffbf05e8f25f44d`.
 The pinned SDK source commit must not be presented as either implementation commit or the

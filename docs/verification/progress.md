@@ -33,6 +33,7 @@ as evidence for changed behavior.
 | Multi-source durable HTTP receipt | `npx tsx --test tests/multi-source-receipt.test.ts tests/catalog-review.test.ts tests/core.test.ts`: **18/18 passed** | Frozen real-serializer two-source review passes the actual guard and HTTP bridge, receipt/replay/owner readback, then Core/bridge/SQLite reopening with exact bytes, SHA-256, source order and all metadata preserved; old session authority is rejected and no project is created. This is a synthetic integration check, not a live multi-source catalog/browser observation |
 | First production Chrome delivery | User allowed local-device access; Chrome `152.0.7977.84` on macOS `26.6.2` paired with the real bridge, retained AnnData, showed the connected homepage and restored public state on disconnect. Request `reference-6b3225a4-5929-4a36-8aa1-0be073f203cf` was durably stored with independently recomputed SHA-256 `8212fb765256cb6f526f2b130421a92dd7e307c23a4b734cdcb3f198053b2de2` | Historical partial result: Chrome displayed **Delivery is unconfirmed**, with zero successful receipts. This project request was not resent or retroactively marked recovered by the subsequent successful resource test |
 | Deployed recovery and Chrome receipt retest | Network `bf4b365f1fff865e60bd76a6d0de20ccf5ec64db`: CI `34761126783`, refresh `34761136095` and Pages verify/deploy/smoke `34761579849` succeeded; public bytes matched the reviewed artifact. After new pairing, Chrome sent one separately reviewed resource and displayed **Reference received**, home **1 receipt**, and matching receipt history | [Production browser record](production-browser.md): request `reference-fcbbc1cd-1fe3-4d3a-953c-e6a468c56a23` matched durable original-content SHA-256 `82594b943b854174e57ccc0fd2cc28f36e7066e4b1cc630c0d8920ba0ecd305c` under snapshot `32da27d09e6f0bff68dcf6d4`; same-session Disconnect restored public state without reload, and post-disconnect owner read/hash at `2026-09-13T14:37:52.435Z` confirmed retention |
+| Real GitHub App authorization and reads | User registered and authorized [AIPOCH Connector](https://github.com/apps/aipoch-connector), App `4931416`; active setup/status, fresh-process macOS Keychain readback, authenticated identity and nine further public-source requests all passed, with live-core resolve/preview matching | [Authorization record](github-authorization.md): all ten observed API requests returned HTTP 200 with matching-credential assertions and no anonymous fallback; exact README preview digest `70e98039f65f99c6bd7d713c94d73f49c003e7eb793738c8559b2e85e0154fec`; no private-repository or live refresh/revocation claim |
 
 No private tokens, confirmation URLs, actual user research contents or profile credentials are
 included in this record. The public source/fixture checks and development-host check are different
@@ -91,8 +92,10 @@ setup/discovery/queries subsequently passed; those are separate observed results
 
 Optional GitHub device flow, macOS Keychain storage, refresh and local CLI/MCP entry points are
 implemented. Credential tests exercise synthetic Keychain/process responses and boundaries.
-An actual registered App, real user consent and private-source access have not been certified by
-this checkpoint. No Linux/Windows protected credential backend is advertised.
+Subsequent real App registration, final human consent, fresh-process Keychain readback and
+authenticated public-source reads passed as recorded in [github-authorization.md](github-authorization.md).
+Private-source access and live refresh/revocation were not exercised. No Linux/Windows protected
+credential backend is advertised.
 
 ## Final independent installation and local lifecycle
 
@@ -119,11 +122,12 @@ The additional resource receipt passed the complete current catalog guard with r
 records. Synthetic action checks, local host restart and package removal do not authorize
 agents to approve product actions on a research user's behalf.
 
-## Remaining acceptance
+## Acceptance status and compatibility limits
 
-1. **Finish existing-App authorization.** The public Client ID and Device Flow setting await
-   the user. Real consent and authenticated access remain unverified; public anonymous reads and
-   synthetic credential tests do not establish them.
+1. **Real-App acceptance passed.** The user replaced the earlier existing-App preference by
+   explicitly registering AIPOCH Connector and personally approving final GitHub authorization.
+   Active local status, fresh-process protected-store readback, authenticated identity/public
+   source reads and live-core resolve/preview matched. See [the exact real evidence](github-authorization.md).
 2. **Keep compatibility claims bounded.** The installed Connector was tested against the rebuilt
    Open-Science development host. Additional browsers, official host installers and operating
    systems are future compatibility checks before advertising support, not permission to infer
@@ -150,7 +154,7 @@ repeating the already-passed implementation checks. New code changes require rel
   all phases complete from one successful command.
 
 
-## Published state and outstanding user inputs
+## Published state and completed real checks
 
 The public alpha source, tag, hosted 101-test checks and independently downloaded tarball are
 verified in [alpha-release.md](alpha-release.md). Network deployed real mode from
@@ -167,11 +171,15 @@ open-page tool subsequently returned `queued`; the user was asked to bring this 
 and let the queued production page load. Native Codex app inspection was disallowed by the
 computer-use tool and was not bypassed. No browser warning or permission was dismissed.
 
-The user chose an existing GitHub App. Its public Client ID and Device Flow availability are
-still required for real authorization; no credentials have been requested or fabricated.
-Local public-source use remains verified. Deployed Chrome receipt delivery, post-success
-disconnect and durable retention have now passed. Real existing-App authorization remains
-outstanding before declaring the implementation goal fully accepted.
+The user initially chose an existing GitHub App, then explicitly opted to register a new one
+and personally submitted both the App registration and final GitHub authorization. Its public
+identity and Device Flow/read-permission settings were verified. At
+`2026-09-13T15:41:37.396Z`, the configured local core reported authorized; independent protected
+readback, authenticated identity/public-source reads and live-core resolve/preview subsequently
+passed at `2026-09-13T15:42:36.808Z`. This closes P2's real authorization gap. See
+[github-authorization.md](github-authorization.md); no credential values or device/user codes are
+included. The deployed Chrome receipt, disconnect and durable-retention results remain separately
+verified rather than being inferred from GitHub authorization.
 
 Subsequent observation: the production in-app-browser tabs acquired the expected page title/URL,
 but selecting either still timed out. Chrome browser-provider control was unavailable, while

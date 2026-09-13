@@ -6,7 +6,8 @@ reviewed resource and displayed **Reference received**. Its visible receipt/hist
 durable Connector record and independently recomputed original-content digest. Disconnect then
 restored public browsing, and a subsequent owner read verified that the receipt remained intact. The earlier
 project submission still has its historical **Delivery is unconfirmed** browser result; it was
-not resent or reinterpreted as recovered. Real GitHub App authorization remains unverified.
+not resent or reinterpreted as recovered. Real GitHub App authorization subsequently passed
+in a separate check recorded in [github-authorization.md](github-authorization.md).
 
 ## Environment and implementation identities
 
@@ -165,10 +166,13 @@ hashed again and still matched
 This completes the observed chain: pairing → exact review → received UI and identity → explicit
 disconnect/public state → durable receipt retention. Disconnect did not delete the local record.
 
-## Remaining acceptance
+## Related authorization acceptance
 
-- Finish real GitHub authorization using the user's existing App. Its public Client ID and
-  Device Flow availability still await the user; no token, secret or private key is requested.
+The user subsequently registered and authorized the public AIPOCH Connector GitHub App.
+Fresh-process macOS Keychain readback, authenticated identity/public-source reads and matching
+live-core resolution/preview passed. See [github-authorization.md](github-authorization.md).
+That configuration update restarted the local core after this browser test; it does not alter
+the process identity, exact requests or results recorded here.
 
 No private confirmation URL, ticket, session token, runtime credential or user-profile path is
 included in this record. Existing alpha publication and installed-package lifecycle evidence

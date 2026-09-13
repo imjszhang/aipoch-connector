@@ -55,16 +55,22 @@ increases it after slow-down, and distinguishes declined, expired, cancelled and
 No client secret is used. Device codes and returned tokens must never be forwarded to Network,
 tool output, ordinary logs, or model context.
 
-The client ID must come from an actual registered GitHub App with device flow enabled. No app
-registration or working production client ID is embedded or claimed by this module. With a
-GitHub App, leave OAuth scopes empty and configure only required repository read permissions
-in the App. The app owner's registration and a real user authorization need separate evidence.
+The client ID must come from an actual registered GitHub App with device flow enabled. The
+module does not embed a default Client ID. Ordinary users can reuse the registered
+[AIPOCH Connector App](https://github.com/apps/aipoch-connector), public Client ID
+`Iv23liAWWYs4LOqm1YAg`, through `setup --github-client-id`; registering another App is unnecessary.
+With a GitHub App, leave OAuth scopes empty and configure only required repository read
+permissions. AIPOCH Connector's public identity and Contents/Metadata read permissions, final
+user consent and authenticated reads are recorded in [the real authorization evidence](verification/github-authorization.md).
 
 Tokens are returned only to the local credential owner. The module neither persists tokens nor
 reads host credential files. The integration layer must bind credentials through an approved
 credential service or a protected local credential store. It must handle returned token expiry,
 explicit revocation, and reauthorization; refresh-token automation is not implemented in this
 module. Revoked/expired tokens yield typed HTTP authorization errors on subsequent requests.
+The shared Connector runtime implements the integration's Keychain storage and refresh handling;
+the real verification read the stored credential from a fresh process and used it successfully.
+It did not force live refresh rotation or revocation.
 
 ## References and verification
 
@@ -85,3 +91,13 @@ On 2026-09-13, an anonymous real read resolved `imjszhang/aipoch-network` to rep
 in memory through Git Trees/Blobs. It contained 8068 bytes with SHA-256
 `70e98039f65f99c6bd7d713c94d73f49c003e7eb793738c8559b2e85e0154fec`. No local research files
 or GitHub resources were changed during this read verification.
+
+A separate real authorization check completed at `2026-09-13T15:42:36.808Z`. The user's newly
+registered App obtained final human consent, and fresh-process macOS Keychain readback supplied
+the exact credential for ten authenticated GitHub requests, all HTTP 200. Identity returned
+`imjszhang`; the existing client resolved the repository, listed its root and previewed README
+at full commit `bf4b365f1fff865e60bd76a6d0de20ccf5ec64db`. The existing live core independently
+matched source resolution and the README preview.
+This verifies authenticated public-source use, not private-repository access, App installation
+or real refresh/revocation. Exact non-sensitive fields and scope are in
+[github-authorization.md](verification/github-authorization.md).
