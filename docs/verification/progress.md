@@ -30,6 +30,7 @@ as evidence for changed behavior.
 | Final independent package and MCP | Final tarball installed into an unrelated prefix; its CLI `setup` registered via the public SDK, started that package's runtime, and SDK `testConnector` succeeded with `toolCount: 20`; real stdio listed 20 tools and successfully called `connection_status`, `list_received_references`, `list_operations` | Actual packaged Connector execution against the rebuilt development host, independent of neighboring source repositories; not an official Open-Science installer certificate |
 | Isolated package removal and retention | SDK disabled/removed the task's exact MCP entry; unconfigured local credential logout, runtime stop and prefix npm uninstall completed; `packageRemoved: true`, `runtimeStopped: true` | Two receipts, one association, two operation records and the acquired README's exact SHA remained; no claim of tested GitHub credential revocation |
 | Additional current-guard resource receipt | Actual resource request `reference-0e3407b5-39c2-4917-8a1c-065b7a3b47eb` returned durable exact-content digest `37d08af4bcf5a3062d40003def2a2852e261b625c9bba8bfb5b81f6e01a7e52a` for snapshot `26b7d31efa5dd84150f48a9c` | A further real resource reference passed the complete current catalog review guard; not just the earlier guard/AnnData flow |
+| Multi-source durable HTTP receipt | `npx tsx --test tests/multi-source-receipt.test.ts tests/catalog-review.test.ts tests/core.test.ts`: **18/18 passed** | Frozen real-serializer two-source review passes the actual guard and HTTP bridge, receipt/replay/owner readback, then Core/bridge/SQLite reopening with exact bytes, SHA-256, source order and all metadata preserved; old session authority is rejected and no project is created. This is a synthetic integration check, not a live multi-source catalog/browser observation |
 
 No private tokens, confirmation URLs, actual user research contents or profile credentials are
 included in this record. The public source/fixture checks and development-host check are different
@@ -119,9 +120,10 @@ agents to approve product actions on a research user's behalf.
 ## Remaining acceptance
 
 1. **Complete production browser pairing.** Real-mode Pages deployment, independent artifact
-   review, public HTTPS build-info/manifest and release smoke passed. Browser navigation remains
-   queued/timed out as detailed below. Once the user opens the production page, verify the actual
-   origin, pairing, reviewed reference and durable receipt without bypassing browser permissions.
+   review, public HTTPS build-info/manifest and release smoke passed. The production page now
+   loads in native Chrome; starting the selected AnnData connection reached Chrome's local-app
+   access permission prompt. User approval is pending. After approval, verify the actual origin,
+   pairing, reviewed reference and durable receipt without bypassing browser permissions.
 2. **Finish existing-App authorization.** The public Client ID and Device Flow setting await
    the user. Real consent and authenticated access remain unverified; public anonymous reads and
    synthetic credential tests do not establish them.
@@ -169,3 +171,18 @@ The user chose an existing GitHub App. Its public Client ID and Device Flow avai
 still required for real authorization; no credentials have been requested or fabricated.
 Local public-source use remains verified. These two pending checks prevent declaring the
 complete implementation goal fully accepted, despite the published alpha and Pages artifact.
+
+Subsequent observation: the production in-app-browser tabs acquired the expected page title/URL,
+but selecting either still timed out. Chrome browser-provider control was unavailable, while
+the permitted native Chrome interface successfully loaded `https://aipoch.network/`. Its actual
+page showed **Not connected** without a Demo label. Selecting **Connect to open: AnnData** retained
+AnnData in the Open-Science panel; choosing **Connect Open-Science** reached Chrome's permission
+prompt to access other apps and services on this device. The implementation task requested the
+user's approval and left that prompt unanswered. This establishes the HTTPS page and permission
+boundary, not approved pairing or receipt. The isolated host and existing Connector were queried
+and remained ready; no duplicate runtime was started.
+
+The documentation commits `2e05ea746545b81db4c644855b101f8723a41acc` (Connector) and
+`2db16872949eec6688ab7ae65beab9669fc4ed24` (Network) subsequently passed their hosted checks in
+runs `34758747678` and `34758747510`, respectively. These are distinct from the released tag and
+deployed artifact identities recorded above.
