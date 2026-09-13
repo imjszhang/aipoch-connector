@@ -178,9 +178,17 @@ CLI registration/runtime was restored afterward for the remaining production HTT
 
 The original local preview port 4190 is rejected by Node fetch's standard bad-port policy and
 cannot be used as the runtime's catalog source; the successful local chain used 4193. This does
-not justify disabling browser/fetch protections. Production HTTPS, other browsers, official
-host-installation compatibility and real GitHub App authorization remain pending. The App
-client ID awaits the user. Network source is pushed to main at
+not justify disabling browser/fetch protections. The subsequent production Chrome/macOS check
+paired with this rebuilt development host and, after Network receipt recovery deployed, verified
+a separately reviewed resource's visible receipt/history against its stored original-content
+digest. Same-session Disconnect restored public state, and a later owner read/hash confirmed
+durable retention. The earlier unconfirmed project submission remains a distinct historical
+result and was not resent. See [production-browser.md](verification/production-browser.md).
+
+Other browsers, operating systems and official host installers still require their own
+compatibility evidence. Real GitHub App authorization awaits the user's existing App public
+Client ID and Device Flow availability. The successful production retest used Network
+`bf4b365f1fff865e60bd76a6d0de20ccf5ec64db`, following its initial real-mode publication at
 `e3eb65895b1bebe64f3cefcf18996213bf525313`; the published Connector alpha source is `98ad82b246805cdcdf27712c4ffbf05e8f25f44d`.
 The pinned SDK source commit must not be presented as either implementation commit or the
 rebuilt host's complete artifact identity.

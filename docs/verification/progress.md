@@ -12,7 +12,7 @@ as evidence for changed behavior.
 | Public repository and alpha | Public main source `98ad82b246805cdcdf27712c4ffbf05e8f25f44d`; GitHub alpha release published and independently downloaded | [Release verification](alpha-release.md) records exact tag, 101/101 hosted checks and tarball checksum |
 | Distribution independence | `npm run build` and `node tests/package-smoke.mjs` passed in the implementation task | Tarball installs into a fresh unrelated directory; CLI help, public SDK imports/integrity and in-memory SQLite work without a runtime/host or neighboring checkout |
 | Runtime configuration and ownership | `npx tsx --test tests/runtime.test.ts`: **7/7 passed** after the concurrent-save guard; typecheck passed | Random-port child runtimes in isolated directories verified origin/client/profile/port digest changes, active CORS, durable pending-operation preservation, single startup, scoped restart, legacy refusal and typed CLI status; no real host or the active 47821 runtime was used |
-| Latest complete Connector check | Implementation owner ran `npm run check`: typecheck, **100/100 tests**, and build passed after runtime/operation recovery changes | The final operationId preparation-result passthrough subsequently passed **5 targeted checks** and another build; release publication remains separate |
+| Pre-publication local Connector check | Implementation owner ran `npm run check`: typecheck, **100/100 tests**, and build passed after runtime/operation recovery changes | The final operationId preparation-result passthrough subsequently passed **5 targeted checks** and another build; hosted 101-test release evidence is recorded separately |
 | Actual synthetic local actions and host recovery | [live-actions.md](live-actions.md) records captured-plan browser checks, actual project IDs, exact acquired-file hash, durable receipt/association and real host stop/restart | The isolated implementation-test actions and recovery passed; not real-user consent, production HTTPS or installed-package certification |
 | Workflow syntax | CI and Release YAML parsed successfully | Workflow definitions are syntactically readable, not evidence of a hosted run or published Release |
 | Public catalog | Anonymous real validation of snapshot `a9fe477dc576ca357c5524cd`; exact counts recorded in [catalog.md](../catalog.md) | The implemented independent consumer read a real consistent public snapshot; not a perpetual freshness guarantee |
@@ -20,17 +20,19 @@ as evidence for changed behavior.
 | Isolated real development host | Rebuilt Open-Science development host reported `0.28.0`; public SDK `listConnectors`/`listProjects` work; earlier authenticated project creation/listing evidence is recorded in [open-science.md](../open-science.md) | Actual development-host APIs work in an isolated profile; not packaged-release certification |
 | Actual MCP registration/discovery | Built Connector CLI `setup` registered AIPOCH Connector in the independent real host profile; public SDK `testConnector` returned `{success:true,stage:'discovery',code:'ok',toolCount:18}` | Exact real host registration and successful tool discovery, beyond a saved enabled flag |
 | Actual stdio MCP invocation | A real stdio MCP client listed 18 tools and called `connection_status`, which returned ready | The actual MCP process communicates with the authenticated real host; not merely a synthetic HTTP fixture |
-| Network adapter/state checks | Latest Network run passed **255 checks**; root and subpath browser protocol-fixture runs each passed **6/6** | Final local adapter/site and deployment-path fixture checks passed; production HTTPS remains separate |
+| Network adapter/state checks | Initial Network checks passed **255**, with root/subpath browser fixtures each **6/6**; receipt-recovery CI [34761126783](https://github.com/imjszhang/aipoch-network/actions/runs/34761126783) subsequently passed **283 unit checks** and the complete browser matrix, including root/subpath real checks each **12/12** | Exact check generations remain distinct; production Chrome outcome is recorded separately below |
 | Exact request limits | Network adapter tests passed 19 checks after adding content UTF-8 ≤256 KiB and serialized-envelope UTF-8 ≤260 KiB checks; typecheck passed | Multibyte content and JSON escaping cannot bypass the two limits; this is independent of live bridge availability |
 | Network real-mode artifact | Static build passed with 96 pages and 119 files | A real-mode candidate can be built without a running client; it used a local offline snapshot and was not deployed |
-| Hosted Network candidate | Fresh candidate workflow [34757888181](https://github.com/imjszhang/aipoch-network/actions/runs/34757888181) succeeded; Network CI [34757788508](https://github.com/imjszhang/aipoch-network/actions/runs/34757788508) and Pages [34758098215](https://github.com/imjszhang/aipoch-network/actions/runs/34758098215) succeeded | Real-mode artifact is deployed; production browser pairing is a separate pending check |
+| Initial hosted Network candidate | Fresh candidate workflow [34757888181](https://github.com/imjszhang/aipoch-network/actions/runs/34757888181) succeeded; Network CI [34757788508](https://github.com/imjszhang/aipoch-network/actions/runs/34757788508) and Pages [34758098215](https://github.com/imjszhang/aipoch-network/actions/runs/34758098215) succeeded | Initial real-mode artifact deployed; later receipt-recovery deployment and actual Chrome retest are separate records below |
 | Network source publication | Adapter source pushed to `main`, commit `e3eb65895b1bebe64f3cefcf18996213bf525313` | Code is on GitHub; a push does not establish real-mode Pages activation or HTTPS transport success |
 | Historical browser failure path | Codex in-app browser visited the real local Network page at `http://127.0.0.1:4190` while the host was stopped; no successful connection was claimed | No false Connected state was shown. Port 4190 was later found to be rejected by Node fetch's standard bad-port list, so it is not a usable runtime catalog source or positive transport test |
-| Actual local browser pairing and receipt | Codex in-app browser at `http://127.0.0.1:4193` → real Connector bridge on 47821 → rebuilt real `0.28.0` host completed pairing, changed the homepage, retained AnnData selection, and showed Reference received matching the durable inbox | A real local browser/bridge/host reference chain passed; later action/lifecycle checks are recorded below; production HTTPS and other browsers remain unverified |
+| Actual local browser pairing and receipt | Codex in-app browser at `http://127.0.0.1:4193` → real Connector bridge on 47821 → rebuilt real `0.28.0` host completed pairing, changed the homepage, retained AnnData selection, and showed Reference received matching the durable inbox | A real local browser/bridge/host reference chain passed; later action/lifecycle and production Chrome checks are recorded separately below; this local result does not establish production HTTPS or other-browser support |
 | Final independent package and MCP | Final tarball installed into an unrelated prefix; its CLI `setup` registered via the public SDK, started that package's runtime, and SDK `testConnector` succeeded with `toolCount: 20`; real stdio listed 20 tools and successfully called `connection_status`, `list_received_references`, `list_operations` | Actual packaged Connector execution against the rebuilt development host, independent of neighboring source repositories; not an official Open-Science installer certificate |
 | Isolated package removal and retention | SDK disabled/removed the task's exact MCP entry; unconfigured local credential logout, runtime stop and prefix npm uninstall completed; `packageRemoved: true`, `runtimeStopped: true` | Two receipts, one association, two operation records and the acquired README's exact SHA remained; no claim of tested GitHub credential revocation |
 | Additional current-guard resource receipt | Actual resource request `reference-0e3407b5-39c2-4917-8a1c-065b7a3b47eb` returned durable exact-content digest `37d08af4bcf5a3062d40003def2a2852e261b625c9bba8bfb5b81f6e01a7e52a` for snapshot `26b7d31efa5dd84150f48a9c` | A further real resource reference passed the complete current catalog review guard; not just the earlier guard/AnnData flow |
 | Multi-source durable HTTP receipt | `npx tsx --test tests/multi-source-receipt.test.ts tests/catalog-review.test.ts tests/core.test.ts`: **18/18 passed** | Frozen real-serializer two-source review passes the actual guard and HTTP bridge, receipt/replay/owner readback, then Core/bridge/SQLite reopening with exact bytes, SHA-256, source order and all metadata preserved; old session authority is rejected and no project is created. This is a synthetic integration check, not a live multi-source catalog/browser observation |
+| First production Chrome delivery | User allowed local-device access; Chrome `152.0.7977.84` on macOS `26.6.2` paired with the real bridge, retained AnnData, showed the connected homepage and restored public state on disconnect. Request `reference-6b3225a4-5929-4a36-8aa1-0be073f203cf` was durably stored with independently recomputed SHA-256 `8212fb765256cb6f526f2b130421a92dd7e307c23a4b734cdcb3f198053b2de2` | Historical partial result: Chrome displayed **Delivery is unconfirmed**, with zero successful receipts. This project request was not resent or retroactively marked recovered by the subsequent successful resource test |
+| Deployed recovery and Chrome receipt retest | Network `bf4b365f1fff865e60bd76a6d0de20ccf5ec64db`: CI `34761126783`, refresh `34761136095` and Pages verify/deploy/smoke `34761579849` succeeded; public bytes matched the reviewed artifact. After new pairing, Chrome sent one separately reviewed resource and displayed **Reference received**, home **1 receipt**, and matching receipt history | [Production browser record](production-browser.md): request `reference-fcbbc1cd-1fe3-4d3a-953c-e6a468c56a23` matched durable original-content SHA-256 `82594b943b854174e57ccc0fd2cc28f36e7066e4b1cc630c0d8920ba0ecd305c` under snapshot `32da27d09e6f0bff68dcf6d4`; same-session Disconnect restored public state without reload, and post-disconnect owner read/hash at `2026-09-13T14:37:52.435Z` confirmed retention |
 
 No private tokens, confirmation URLs, actual user research contents or profile credentials are
 included in this record. The public source/fixture checks and development-host check are different
@@ -119,22 +121,20 @@ agents to approve product actions on a research user's behalf.
 
 ## Remaining acceptance
 
-1. **Complete production browser pairing.** Real-mode Pages deployment, independent artifact
-   review, public HTTPS build-info/manifest and release smoke passed. The production page now
-   loads in native Chrome; starting the selected AnnData connection reached Chrome's local-app
-   access permission prompt. User approval is pending. After approval, verify the actual origin,
-   pairing, reviewed reference and durable receipt without bypassing browser permissions.
-2. **Finish existing-App authorization.** The public Client ID and Device Flow setting await
+1. **Finish existing-App authorization.** The public Client ID and Device Flow setting await
    the user. Real consent and authenticated access remain unverified; public anonymous reads and
    synthetic credential tests do not establish them.
-3. **Keep compatibility claims bounded.** The installed Connector was tested against the rebuilt
+2. **Keep compatibility claims bounded.** The installed Connector was tested against the rebuilt
    Open-Science development host. Additional browsers, official host installers and operating
    systems are future compatibility checks before advertising support, not permission to infer
    support from fixtures.
 
 Published source, 101-test hosted CI, release artifact/checksum and real-mode Pages deployment
-are complete. Documentation changes do not require repeating the already-passed implementation
-checks. New code changes require the relevant validation.
+are complete. The deployed Chrome chain also passed pairing, separate resource review, matched
+receipt UI/history, explicit disconnect/public-state restoration and retained durable bytes.
+The earlier unconfirmed project request remains a separate result and was not resent. See
+[both production observations](production-browser.md). Documentation changes do not require
+repeating the already-passed implementation checks. New code changes require relevant validation.
 
 ## Resume without losing the product boundary
 
@@ -169,18 +169,44 @@ computer-use tool and was not bypassed. No browser warning or permission was dis
 
 The user chose an existing GitHub App. Its public Client ID and Device Flow availability are
 still required for real authorization; no credentials have been requested or fabricated.
-Local public-source use remains verified. These two pending checks prevent declaring the
-complete implementation goal fully accepted, despite the published alpha and Pages artifact.
+Local public-source use remains verified. Deployed Chrome receipt delivery, post-success
+disconnect and durable retention have now passed. Real existing-App authorization remains
+outstanding before declaring the implementation goal fully accepted.
 
 Subsequent observation: the production in-app-browser tabs acquired the expected page title/URL,
 but selecting either still timed out. Chrome browser-provider control was unavailable, while
 the permitted native Chrome interface successfully loaded `https://aipoch.network/`. Its actual
 page showed **Not connected** without a Demo label. Selecting **Connect to open: AnnData** retained
 AnnData in the Open-Science panel; choosing **Connect Open-Science** reached Chrome's permission
-prompt to access other apps and services on this device. The implementation task requested the
-user's approval and left that prompt unanswered. This establishes the HTTPS page and permission
-boundary, not approved pairing or receipt. The isolated host and existing Connector were queried
-and remained ready; no duplicate runtime was started.
+prompt to access other apps and services on this device. The implementation task initially
+requested the user's approval and left that prompt unanswered. That historical observation
+established the HTTPS page and permission boundary, not approved pairing or receipt. The isolated
+host and existing Connector were queried and remained ready; no duplicate runtime was started.
+
+The user subsequently approved that Chrome permission. Real production pairing then succeeded
+after one expired attempt was correctly rejected. Chrome retained AnnData in its full review,
+displayed the connected homepage and returned to the public hero after Disconnect. The actual
+reference was durably received at `2026-09-13T13:36:14.442Z`, but the webpage reported **Delivery
+is unconfirmed**, so the full receipt UI acceptance failed. A separate cold catalog load took
+32,353 ms; it was not the original request's measured duration. That historical failure remains
+distinct from the successful deployed retest below.
+
+Network recovery subsequently deployed from `bf4b365f1fff865e60bd76a6d0de20ccf5ec64db` with one
+POST, same-request receipt GETs and a bounded sixty-second real-delivery budget. CI, trusted
+refresh and Pages verify/deploy/smoke passed; public entry and JavaScript bytes matched the
+independently reviewed artifact, as did the metadata mode and catalog snapshot identities.
+Under snapshot `32da27d09e6f0bff68dcf6d4`,
+a new Chrome pairing separately reviewed `resource:anndata-library` with action **Use**, clicked
+Send once and displayed **Reference received**. Request
+`reference-fcbbc1cd-1fe3-4d3a-953c-e6a468c56a23`, received at `2026-09-13T14:21:24.771Z`, matched
+the durable original-content digest `82594b943b854174e57ccc0fd2cc28f36e7066e4b1cc630c0d8920ba0ecd305c`.
+The home showed one receipt, and opened receipt history matched its request/session identity.
+No packet-level GET trace was captured; approximately thirty seconds between observed Send and
+receipt is not exact HTTP timing. Post-success Disconnect in the same Chrome session restored
+Not connected, the public hero/search/counts/cards and hid personal views/Save without a reload,
+even though the URL retained personal-view query parameters. At `2026-09-13T14:37:52.435Z`, owner
+readback and a new independent digest computation confirmed the receipt remained unchanged. See
+[production-browser.md](production-browser.md) for identities, both requests and evidence limits.
 
 The documentation commits `2e05ea746545b81db4c644855b101f8723a41acc` (Connector) and
 `2db16872949eec6688ab7ae65beab9669fc4ed24` (Network) subsequently passed their hosted checks in
