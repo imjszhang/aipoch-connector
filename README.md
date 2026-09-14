@@ -4,7 +4,9 @@ AIPOCH Connector brings research discovered on [AIPOCH Network](https://aipoch.n
 
 GitHub remains the source of code, documentation, identity and collaboration. Existing public repositories work without an AIPOCH manifest or prior Network membership. Network stays a static, anonymously useful website; it does not receive GitHub credentials or the Open-Science daemon token.
 
-**Source version: `0.1.0-alpha.2`.** [GitHub releases](https://github.com/imjszhang/aipoch-connector/releases) contain published packages. The previous `0.1.0-alpha.1` release established the following verification evidence. Hosted CI and release checks passed 101 tests; real local installation, 20-tool discovery, reference receipt, project association, file acquisition and recovery were verified against an isolated Open-Science development host. The [production Chrome/macOS flow](docs/verification/production-browser.md) also passed pairing, reviewed resource delivery with a matching visible/durable receipt, disconnect and receipt retention after a Network recovery fix. [Real GitHub App authorization](docs/verification/github-authorization.md), macOS Keychain readback and authenticated public-source reads passed. The package name `aipoch-connector` is a candidate name, **not a claim that this project is published on npm or owns that registry name**. Do not install by the bare registry name on the basis of this README. Use this checkout or a reviewed release tarball.
+**Source version: `0.1.0-alpha.3`.** [GitHub releases](https://github.com/imjszhang/aipoch-connector/releases) contain published packages. The previous `0.1.0-alpha.1` release established the following verification evidence. Hosted CI and release checks passed 101 tests; real local installation, 20-tool discovery, reference receipt, project association, file acquisition and recovery were verified against an isolated Open-Science development host. The [production Chrome/macOS flow](docs/verification/production-browser.md) also passed pairing, reviewed resource delivery with a matching visible/durable receipt, disconnect and receipt retention after a Network recovery fix. [Real GitHub App authorization](docs/verification/github-authorization.md), macOS Keychain readback and authenticated public-source reads passed. The package name `aipoch-connector` is a candidate name, **not a claim that this project is published on npm or owns that registry name**. Do not install by the bare registry name on the basis of this README. Use this checkout or a reviewed release tarball.
+
+Alpha.3 fixes MCP product-version reporting and fixed-file operation replay. It upgrades the inbox to schema 2; older operation records remain queryable but may require explicit reconciliation. Read the [repair and upgrade notes](docs/releases/0.1.0-alpha.3.md) before upgrading.
 
 ## Install
 
@@ -16,7 +18,7 @@ From this repository:
 npm ci
 npm run check
 npm pack --ignore-scripts
-npm install --global --ignore-scripts ./aipoch-connector-0.1.0-alpha.2.tgz
+npm install --global --ignore-scripts ./aipoch-connector-0.1.0-alpha.3.tgz
 aipoch-connector help
 ```
 
@@ -62,7 +64,7 @@ npm run check
 node tests/package-smoke.mjs
 ```
 
-These checks use synthetic host/HTTP fixtures and isolated temporary files. They require no running Open-Science, live GitHub credentials or adjacent repository. The package smoke test installs the packed artifact in a fresh directory and verifies the CLI and vendored distribution. It needs npm dependency access but does not start a runtime or host.
+These checks use synthetic host/HTTP fixtures and isolated temporary files. They require no running Open-Science, live GitHub credentials or adjacent repository. The package smoke test installs the packed artifact in a fresh directory and verifies the CLI and vendored distribution. It needs npm dependency access and starts/stops isolated temporary Connector runtimes to verify CLI recovery and stdio MCP version/discovery; it does not start a host.
 
 Before publication, the local Connector check passed typecheck, 100 tests and build; the final operation-ID return change passed five targeted checks and another build. The released implementation then passed 101 hosted tests. Independent package smoke and a real installation into an unrelated prefix passed. That installed `0.1.0-alpha.1` package registered through the public SDK against the rebuilt Open-Science `0.28.0` development host, started its own runtime, exposed 20 MCP tools, and successfully queried connection status, received references and durable operations.
 

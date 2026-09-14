@@ -1,3 +1,5 @@
+import { packageManifest, packageVersion } from './version.js';
+import { acquisitionIdentity } from './acquisition.js';
 import { mkdir, readFile, writeFile, open, unlink, lstat, realpath, readdir, rename } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { homedir } from 'node:os';
@@ -71,8 +73,8 @@ export async function runtimeVersion(): Promise<Pick<RuntimeIdentity, 'packageVe
   }
   await collect(directory, 'runtime/');
   await collect(fileURLToPath(new URL('../vendor/', import.meta.url)), 'vendor/');
-  const manifest = await readFile(new URL('../package.json', import.meta.url), 'utf8');
-  return { packageVersion: JSON.parse(manifest).version, codeSha256: digest(manifest + '\n' + parts.join('\n')), nodeVersion: process.version };
+  const manifest = packageManifest;
+  return { packageVersion, codeSha256: digest(manifest + '\n' + parts.join('\n')), nodeVersion: process.version };
 }
 export async function runtimeRecord(dir: string): Promise<RuntimeRecord> {
   const path = join(dir, 'runtime.json'), info = await lstat(path);
@@ -202,10 +204,11 @@ export async function serve(dir:string) {
   const github=async()=>new GithubClient({token:process.env.AIPOCH_GITHUB_TOKEN ?? (process.platform==='darwin'?await githubAuth.token():undefined)});
   const acquire=async(input:any)=>{
     if(typeof input.operationId!=='string' || !/^[\w.-]{1,100}$/.test(input.operationId))throw new ConnectorError('operation_id_required','A file acquisition requires an explicit operation ID.');
-    const existing=inbox.beginOperation(input.operationId,digest(JSON.stringify(input)));
+    const identity=acquisitionIdentity(input);
+    const existing=inbox.beginOperation(input.operationId,identity.hash,{identityVersion:'acquire-v1',input,legacyHash:digest(JSON.stringify(input))});
     if(existing.state==='complete')return existing.result;
     if(existing.state!=='new')throw new ConnectorError('result_unconfirmed','An earlier file acquisition may have completed. Inspect its exact destination before choosing another operation.',409);
-    const result=await (await github()).materialize(input.source,resolve(input.destination),{expectedSha256:input.expectedSha256});
+    const result=await (await github()).materialize(input.source,identity.destination,{expectedSha256:input.expectedSha256});
     inbox.finishOperation(input.operationId,result);return result;
   };
   const bridge=createBridge(core,{adminToken:token,origins:config.origins,prepareAction:async(kind,input)=>{
@@ -248,7 +251,7 @@ export async function serve(dir:string) {
       if(path==='/admin/github/resolve' && method==='POST')return (await github()).resolve(input.url,{ref:input.ref,path:input.path});
       if(path==='/admin/github/list' && method==='POST')return (await github()).list(input.source);
       if(path==='/admin/github/preview' && method==='POST') {const result=await (await github()).preview(input.source);const {bytes,...rest}=result;return rest;}
-      if(path==='/admin/github/materialize' && method==='POST')return acquire(input);
+      if(path==='/admin/github/materialize' && method==='POST')return await acquire(input);
       if(path==='/admin/shutdown' && method==='POST'){setTimeout(()=>process.kill(process.pid,'SIGTERM'),50);return{stopping:true};}
       throw new ConnectorError('not_found','This local operation does not exist.',404);
     }catch(error:any){if(error instanceof ConnectorError)throw error;if(['GithubError','CatalogError'].includes(error?.name))throw new ConnectorError(error.code,error.message,422);throw error;}

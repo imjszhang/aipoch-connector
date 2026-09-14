@@ -62,3 +62,7 @@ capability, private target plan or confirmation ticket.
 v0.2: full repository acquisition/update checks and generic native host reference management.
 v0.3: contribution drafts, GitHub PRs and progress. v1.0: stable protocol and verified platform
 support, mature recovery. Cross-device synchronization/public accounts require separate design.
+
+## Alpha.3 repair checkpoint — 2026-09-14
+
+The alpha.2 MCP version and acquisition replay defects in issues #1/#2 supersede any interpretation that all recovery paths passed historical acceptance. Alpha.3 supplies a common version source, stable acquisition identities and explicit legacy-record handling. Historical host/browser results above remain scoped to their original observations. See [repair acceptance](verification/alpha3-repair.md) for current tests, migration limitations and publication status.

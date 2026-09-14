@@ -155,9 +155,6 @@ export class GithubClient {
     } : undefined;
     return { sourceId: `source:github:${repo.id}`, repositoryId: repo.id, owner, repo: name, canonicalUrl: repo.html_url, commit: resolved.sha, ref, ...(path ? { path } : {}), resolvedAt, license: { status: 'unknown' }, ...(observation ? { repositoryLicenseObservation: observation } : {}) };
   }
-  private validateSource(source: ResolvedGithubSource): void {
-    if (!source || !Number.isSafeInteger(source.repositoryId) || source.repositoryId < 1 || source.sourceId !== `source:github:${source.repositoryId}` || !safePair(source.owner, source.repo) || source.canonicalUrl !== `https://github.com/${source.owner}/${source.repo}` || !SHA.test(source.commit) || (source.path !== undefined && !safePath(source.path))) fail('invalid_source', 'Expected a resolved GitHub source with a full commit and safe path');
-  }
   private async tree(prefix: string, sha: string): Promise<any[]> {
     const data = await this.request(`${prefix}/git/trees/${sha}`);
     if (data?.sha !== sha || data.truncated !== false || !Array.isArray(data.tree) || data.tree.length > 100_000) fail('invalid_tree', 'GitHub tree is invalid or truncated');
@@ -169,7 +166,7 @@ export class GithubClient {
     return data.tree;
   }
   private async locate(source: ResolvedGithubSource): Promise<{ prefix: string; entry: any }> {
-    this.validateSource(source);
+    validateResolvedGithubSource(source);
     const repo = await this.repository(source.owner, source.repo);
     if (repo.id !== source.repositoryId) fail('identity_changed', 'Repository URL no longer identifies the confirmed GitHub repository');
     const [owner, name] = repo.full_name.split('/') as [string, string]; const prefix = this.prefix(owner, name);
@@ -224,4 +221,8 @@ export class GithubClient {
     const directory = await open(current, constants.O_RDONLY); try { await directory.sync(); } finally { await directory.close(); }
     return { status: 'files_acquired', sourceId: source.sourceId, commit: source.commit, path: file.path, sha256: file.sha256, bytes: file.size, destination: actualDestination, file: target };
   }
+}
+
+export function validateResolvedGithubSource(source: ResolvedGithubSource): void {
+  if (!source || !Number.isSafeInteger(source.repositoryId) || source.repositoryId < 1 || source.sourceId !== `source:github:${source.repositoryId}` || !safePair(source.owner, source.repo) || source.canonicalUrl !== `https://github.com/${source.owner}/${source.repo}` || !SHA.test(source.commit) || (source.path !== undefined && !safePath(source.path))) fail('invalid_source', 'Expected a resolved GitHub source with a full commit and safe path');
 }

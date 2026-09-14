@@ -232,3 +232,7 @@ Local `npm run check` passed typecheck, 103/103 tests and build after this code 
 including default/legacy/custom configuration coverage and runtime restart integration checks.
 The published alpha assets and tag were not changed. This update does not add live
 authorization, refresh/revocation or platform compatibility evidence.
+
+## Alpha.3 repair checkpoint — 2026-09-14
+
+The alpha.2 MCP version and acquisition replay defects in issues #1/#2 supersede any interpretation that all recovery paths passed historical acceptance. Alpha.3 supplies a common version source, stable acquisition identities and explicit legacy-record handling. Historical host/browser results above remain scoped to their original observations. See [repair acceptance](alpha3-repair.md) for current tests, migration limitations and publication status.
