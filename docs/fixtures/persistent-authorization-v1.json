@@ -1,0 +1,11 @@
+{
+  "purpose": "Synthetic public interoperability vector; never a live authorization.",
+  "publicKey": {
+    "kty": "EC",
+    "x": "V8E2fxtRe541BlBzS2Z47Ubwh_RPpYt_RuAVKCCIDfg",
+    "y": "bM9AbqbAuWrnpIaXh5rW_MU8TgtHkrUaOtIkIOPp4f0",
+    "crv": "P-256"
+  },
+  "challenge": "[\"aipoch-browser-authorization\",\"1.0\",\"11111111-1111-4111-8111-111111111111\",\"https://aipoch.network\",\"22222222-2222-4222-8222-222222222222\",\"resume\",\"33333333-3333-4333-8333-333333333333\",\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",1900000060000]",
+  "signature": "UqiMEuTeyI0tAKgiDGopkI6UompuAaGGSvNHW_Gsqzry7U-1DCNLcUhihg7rrhx3B-JM9WxEPI-j80Vssuvz6g"
+}

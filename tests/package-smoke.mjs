@@ -21,7 +21,7 @@ try {
   assert.equal(packed.length, 1);
   const names = new Set(packed[0].files.map(file => file.path));
   for (const name of ['dist/cli.js', 'dist/runtime.js', 'dist/workbench/index.js', 'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'vendor/open-science/index.mjs', 'vendor/open-science/cli.mjs', 'vendor/open-science/LICENSE', 'vendor/open-science/ORIGIN.json', 'docs/protocol.md', 'docs/operations.md']) assert.ok(names.has(name), `Required package file missing: ${name}`);
-  for (const name of names) assert.ok(!/(^|\/)(?:\.env(?:\.|$)|runtime\.json$|runtime\.lock$|inbox\.sqlite(?:-|$)|node_modules\/|\.git\/|\.local\/)/.test(name), `Private or generated runtime state in package: ${name}`);
+  for (const name of names) assert.ok(!/(^|\/)(?:\.env(?:\.|$)|runtime\.json$|runtime\.lock$|(?:inbox|authorizations)\.sqlite(?:-|$)|node_modules\/|\.git\/|\.local\/)/.test(name), `Private or generated runtime state in package: ${name}`);
   const install = join(temporary, 'consumer');
   await run(npm, ['install', '--prefix', install, '--ignore-scripts', '--package-lock=false', '--no-audit', '--no-fund', external ?? join(temporary, packed[0].filename)]);
   const packageRoot = join(install, 'node_modules', 'aipoch-connector');

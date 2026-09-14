@@ -57,7 +57,7 @@ export async function verifyAcquisition(root, source = false, live = false) {
       const pkg=JSON.parse(await readFile(join(root,'package.json'),'utf8'));
       assert.equal(client.getServerVersion().version,pkg.version);
       assert.equal((await cli('status')).runtime.packageVersion,pkg.version);
-      assert.equal((await client.listTools()).tools.length,20);
+      assert.equal((await client.listTools()).tools.length,22);
       assert.equal((await client.callTool({name:'connection_status',arguments:{}})).isError,undefined);
     } finally {await client.close();}
 
@@ -80,6 +80,6 @@ export async function verifyAcquisition(root, source = false, live = false) {
       const pending=await reviewer.callTool({name:'get_action_result',arguments:{actionId:prepared.actionId}});
       assert.equal(JSON.parse(pending.content[0].text).status,'pending');
     }finally{await reviewer.close();await preparedServer.close();}
-    return {mode:live?'live-anonymous-github':'synthetic-github',sha256:hash,bytes:original.length,replay:true,restart:true,noOverwrite:true,unknownNotRetried:true,mcpTools:20};
+    return {mode:live?'live-anonymous-github':'synthetic-github',sha256:hash,bytes:original.length,replay:true,restart:true,noOverwrite:true,unknownNotRetried:true,mcpTools:22};
   } finally {await stop();await rm(dir,{recursive:true,force:true});}
 }
