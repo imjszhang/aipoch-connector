@@ -2,9 +2,10 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { randomBytes } from 'node:crypto';
 import { ConnectorCore, equalSecret } from './core.js';
 import { ConnectorError, MAX_BODY_BYTES, PROTOCOL_VERSION } from './contracts.js';
+import { isAllowedBrowserOrigin } from './origin-policy.js';
 
 interface Options {
-  adminToken: string; origins: string[];
+  adminToken: string; origins: string[]; allowLoopbackHttp?: boolean;
   adminHandler?: (path: string, method: string, body: any) => Promise<unknown>;
   prepareAction?: (kind:string,input:any) => Promise<{display:unknown;operationId?:string;execute:()=>Promise<unknown>}>;
 }
@@ -48,7 +49,7 @@ export function createBridge(core: ConnectorCore, options: Options) {
       const origin = request.headers.origin ?? '';
       const auth = request.headers.authorization?.startsWith('Bearer ') ? request.headers.authorization.slice(7) : '';
       if (path.startsWith('/v1/')) {
-        if (!options.origins.includes(origin)) throw new ConnectorError('origin_denied','This website is not allowed to connect.',403);
+        if (!isAllowedBrowserOrigin(origin,options.origins,options.allowLoopbackHttp)) throw new ConnectorError('origin_denied','This website is not allowed to connect.',403);
         response.setHeader('Access-Control-Allow-Origin',origin); response.setHeader('Vary','Origin');
         response.setHeader('Access-Control-Allow-Methods','GET, POST, DELETE, OPTIONS');
         response.setHeader('Access-Control-Allow-Headers','Authorization, Content-Type');

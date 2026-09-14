@@ -20,7 +20,7 @@ async function unusedPort() {
 }
 async function temporary() {
   const dir = await mkdtemp(join(tmpdir(), 'aipoch-runtime-'));
-  const config: Configuration = { version: 1, port: await unusedPort(), origins: ['https://aipoch.network'],
+  const config: Configuration = { version: 1, port: await unusedPort(), origins: ['https://aipoch.network'], allowLoopbackHttp:false,
     openScienceConfigRoot: join(dir, 'no-running-host') };
   await saveConfiguration(dir, config); return {dir, config};
 }
@@ -58,7 +58,7 @@ test('configuration digest normalizes origin order and detects every startup set
   const config: Configuration = {version:1, port:47821, origins:['https://aipoch.network', 'http://127.0.0.1:4193']};
   assert.equal(configurationDigest(config), configurationDigest({...config, origins:[...config.origins].reverse()}));
   assert.equal(configurationDigest(config), configurationDigest({...config, origins:[...config.origins, config.origins[0]]}));
-  for (const patch of [{port:47822}, {origins:['https://aipoch.network']}, {githubClientId:'test-client'},
+  for (const patch of [{allowLoopbackHttp:false}, {port:47822}, {origins:['https://aipoch.network']}, {githubClientId:'test-client'},
     {openScienceConfigRoot:'/tmp/another-host'}, {catalogManifestUrl:'https://example.com/manifest.json'}])
     assert.notEqual(configurationDigest(config), configurationDigest({...config,...patch}));
 });

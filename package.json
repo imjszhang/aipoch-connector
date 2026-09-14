@@ -1,6 +1,6 @@
 {
   "name": "aipoch-connector",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "Local connection between AIPOCH Network, GitHub and research workbenches",
   "type": "module",
   "license": "MIT",
