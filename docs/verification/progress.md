@@ -236,3 +236,5 @@ authorization, refresh/revocation or platform compatibility evidence.
 ## Alpha.3 repair checkpoint — 2026-09-14
 
 The alpha.2 MCP version and acquisition replay defects in issues #1/#2 supersede any interpretation that all recovery paths passed historical acceptance. Alpha.3 supplies a common version source, stable acquisition identities and explicit legacy-record handling. Historical host/browser results above remain scoped to their original observations. See [repair acceptance](alpha3-repair.md) for current tests, migration limitations and publication status.
+
+Alpha.3 is now published from `df14bef2cfcde3bcf45b7a98fe924d0d22762c74`. Release workflow `34809866810` passed 108/108 checks and independent package acceptance; the downloaded asset checksum and real anonymous GitHub recovery/stdio checks also passed. This closes the two new-release defects, while legacy-record reconciliation and the historical compatibility limits remain explicit.

@@ -68,10 +68,26 @@ request counting and actual GitHub success are separate evidence. No packet capt
 for the live API. This is not real desktop-host/browser acceptance, private-repository access
 or OAuth refresh/revocation evidence.
 
-## Publication gate
+## Published release and downloaded-asset acceptance
 
-At preparation of this record, publication and downloaded-release acceptance are pending.
-The release must pass hosted checks, expose a tarball/checksum, and its downloaded original
-asset must pass `node tests/package-smoke.mjs /absolute/downloaded.tgz --live` before issues
-are closed. The invocation installs that original supplied asset; fixture tests remain default
-and the live check is explicitly opt-in.
+[PR #3](https://github.com/imjszhang/aipoch-connector/pull/3) merged as
+`df14bef2cfcde3bcf45b7a98fe924d0d22762c74`. The annotated tag `v0.1.0-alpha.3`
+identifies that commit. [The release](https://github.com/imjszhang/aipoch-connector/releases/tag/v0.1.0-alpha.3)
+was published at `2026-09-14T05:31:06Z`.
+
+- PR checks `34809757980` and `34809777634`: success.
+- Main checks `34809849263`: success.
+- Release workflow `34809866810`: success; its logs explicitly report 108/108 tests and
+  independent installed-package CLI/stdio acceptance.
+- Downloaded asset: `aipoch-connector-0.1.0-alpha.3.tgz`, 221592 bytes.
+- Independently computed SHA-256 matched both published `SHA256SUMS` and GitHub's asset digest:
+  `ef434169c0a411494594450b432a3c883804a020908a9edace176912ab00cdcc`.
+- `node tests/package-smoke.mjs /absolute/downloaded.tgz --live` passed against the original
+  downloaded asset installed into an unrelated temporary prefix. The synthetic matrix and real
+  anonymous GitHub check both passed, including stdio product version/discovery/read and
+  unapproved MCP preparation without a destination or durable write. The live LICENSE was
+  1084 bytes with the SHA-256 above; replay/restart/no-overwrite/unknown-result checks all passed.
+
+The tarball's documentation is the immutable pre-publication checkpoint; this subsequent
+source record adds publication evidence without replacing the tag or release assets. No npm
+publication, Network redeployment or upgrade of the user's active Connector data was performed.
