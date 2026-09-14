@@ -12,6 +12,8 @@ export interface OperationRecord {
   result?: unknown;
   outcome: 'unknown' | 'complete';
   retryAllowed: false;
+  identityVersion?: string;
+  input?: unknown;
 }
 export class Inbox {
   private db: DatabaseSync;
@@ -24,8 +26,8 @@ export class Inbox {
     if (path !== ':memory:') chmodSync(path, 0o600);
     this.db.exec('PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA synchronous=FULL;');
     const version = (this.db.prepare('PRAGMA user_version').get() as any).user_version;
-    if (version > 1) { this.db.close(); throw new Error('This inbox was created by a newer Connector. Its data was not modified.'); }
-    this.db.exec(`CREATE TABLE IF NOT EXISTS receipts (
+    if (version > 2) { this.db.close(); throw new Error('This inbox was created by a newer Connector. Its data was not modified.'); }
+    try { this.db.exec(`BEGIN IMMEDIATE; CREATE TABLE IF NOT EXISTS receipts (
       request_id TEXT PRIMARY KEY, session_id TEXT NOT NULL, object_id TEXT NOT NULL,
       content_hash TEXT NOT NULL, submission TEXT NOT NULL, host_id TEXT NOT NULL,
       title TEXT NOT NULL, received_at INTEGER NOT NULL);
@@ -35,7 +37,10 @@ export class Inbox {
       PRIMARY KEY(request_id,host_id,project_id));
       CREATE TABLE IF NOT EXISTS operations (
       operation_id TEXT PRIMARY KEY, input_hash TEXT NOT NULL, state TEXT NOT NULL, result TEXT);
-      PRAGMA user_version=1;`);
+      CREATE TABLE IF NOT EXISTS operation_evidence (
+      operation_id TEXT PRIMARY KEY REFERENCES operations(operation_id), identity_version TEXT NOT NULL, input TEXT NOT NULL);
+      PRAGMA user_version=2; COMMIT;`);
+    } catch (error) { this.db.close(); throw error; }
   }
   receive(submission: Submission, hostInstanceId: string, now = Date.now()): Receipt {
     const previous = this.get(submission.requestId);
@@ -71,13 +76,24 @@ export class Inbox {
     return (this.db.prepare('SELECT * FROM associations WHERE project_id=? AND host_id=?').all(projectId, hostInstanceId) as any[])
       .map(row => ({ requestId: row.request_id, hostInstanceId: row.host_id, projectId: row.project_id, projectName: row.project_name, linkedAt: row.linked_at }));
   }
-  beginOperation(id: string, hash: string): { state: string; result?: unknown } {
+  beginOperation(id: string, hash: string, evidence?: {identityVersion: string; input: unknown; legacyHash: string}): { state: string; result?: unknown } {
     const existing = this.db.prepare('SELECT * FROM operations WHERE operation_id=?').get(id) as any;
     if (existing) {
+      const saved = this.db.prepare('SELECT identity_version FROM operation_evidence WHERE operation_id=?').get(id) as any;
+      if (evidence && !saved) {
+        if (existing.input_hash !== evidence.legacyHash) throw new ConnectorError('legacy_operation_unverifiable', 'This older operation lacks its original input. Inspect operations show with the original ID and its destination; do not retry with a new ID automatically.', 409);
+        return {state:existing.state, result:existing.result ? JSON.parse(existing.result) : undefined};
+      }
+      if (saved && saved.identity_version !== evidence?.identityVersion) throw new ConnectorError('operation_conflict', 'This operation ID belongs to a different operation identity format.', 409);
       if (existing.input_hash !== hash) throw new ConnectorError('operation_conflict', 'This operation ID was used with different inputs.', 409);
       return {state: existing.state, result: existing.result ? JSON.parse(existing.result) : undefined};
     }
-    this.db.prepare('INSERT INTO operations VALUES (?,?,?,NULL)').run(id, hash, 'pending');
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      this.db.prepare('INSERT INTO operations VALUES (?,?,?,NULL)').run(id, hash, 'pending');
+      if (evidence) this.db.prepare('INSERT INTO operation_evidence VALUES (?,?,?)').run(id, evidence.identityVersion, JSON.stringify(evidence.input));
+      this.db.exec('COMMIT');
+    } catch (error) { this.db.exec('ROLLBACK'); throw error; }
     return { state: 'new' };
   }
   finishOperation(id: string, result: unknown) {
@@ -91,7 +107,8 @@ export class Inbox {
     if (!row) return;
     if (row.state !== 'pending' && row.state !== 'complete')
       throw new ConnectorError('operation_record_invalid', 'The operation record has an unsupported state. Preserve it for local diagnosis.', 409);
-    return { operationId: row.operation_id, inputHash: row.input_hash, state: row.state,
+    const evidence = this.db.prepare('SELECT * FROM operation_evidence WHERE operation_id=?').get(id) as any;
+    return { ...(evidence ? {identityVersion:evidence.identity_version, input:JSON.parse(evidence.input)} : {}), operationId: row.operation_id, inputHash: row.input_hash, state: row.state,
       result: row.state === 'complete' && row.result !== null ? JSON.parse(row.result) : undefined,
       outcome: row.state === 'complete' ? 'complete' : 'unknown', retryAllowed: false };
   }

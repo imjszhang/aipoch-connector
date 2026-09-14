@@ -127,3 +127,11 @@ An unapproved action need not have a durable side-effect record. A pending durab
 requires checking the exact host project or destination before further action. CLI acquisition
 requires `--operation-id`; repeating an identical completed operation can return its saved
 result, while uncertain writes are never repeated automatically.
+
+## Alpha.3 acquisition identity and storage compatibility
+
+Browser protocol remains 1.0 and MCP protocol negotiation is unchanged. MCP product version and runtime product version now use the installed package manifest. Owner-only operation queries add optional `identityVersion` and `input` for new acquisition records. These fields include complete reviewed source metadata and local paths; they are not public diagnostics.
+
+`acquire-v1` hashes a canonical JSON object containing `version: 1`, `kind: acquire_github_file`, the resolved `source`, `expectedSha256`, and an absolute normalized `destination`. Only `source.resolvedAt` and `source.repositoryLicenseObservation.observedAt` are removed for hashing. All other fields, including licenses/conditions and ref, remain binding; object keys are sorted recursively and array order is preserved. Full original input is retained unchanged separately. Completed replay returns the stored result; pending replay returns `result_unconfirmed`; changed identity returns `operation_conflict`.
+
+Schema 2 adds `operation_evidence` atomically without rewriting old records. Missing legacy evidence allows only an exact original full-input hash match; otherwise `legacy_operation_unverifiable` (409) requires owner reconciliation. Older binaries reject the new database version. No reverse migration or guessed legacy identity is provided. Existing destination errors retain their `destination_exists` code through the owner CLI.
