@@ -7,6 +7,7 @@ import { homedir } from 'node:os';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { AuthorizationStore } from './authorizations.js';
 import { Inbox } from './inbox.js';
 import { ConnectorCore } from './core.js';
 import { createBridge } from './bridge.js';
@@ -201,7 +202,8 @@ export async function serve(dir:string) {
   await lock.writeFile(String(process.pid)); await lock.close();
   const token=randomBytes(32).toString('base64url'); const inbox=new Inbox(join(dir,'inbox.sqlite'));
   const host=new OpenScienceHost({configRoot:config.openScienceConfigRoot}); const catalog=new CatalogClient({manifestUrl:config.catalogManifestUrl});
-  const core=new ConnectorCore(inbox,host,()=>Date.now(),createCatalogReviewGuard(catalog));
+  const authorizations=new AuthorizationStore(join(dir,'authorizations.sqlite'));
+  const core=new ConnectorCore(inbox,host,()=>Date.now(),createCatalogReviewGuard(catalog),authorizations);
   const githubAuth=new GithubAuth(new CredentialStore(dir),config.githubClientId);
   const github=async()=>new GithubClient({token:process.env.AIPOCH_GITHUB_TOKEN ?? (process.platform==='darwin'?await githubAuth.token():undefined)});
   const acquire=async(input:any)=>{
@@ -261,9 +263,9 @@ export async function serve(dir:string) {
   try {
     await new Promise<void>((resolve,reject)=>{bridge.once('error',reject);bridge.listen(config.port,'127.0.0.1',resolve);});
     await writeFile(join(dir,'runtime.json'),JSON.stringify({pid:process.pid,url:`http://127.0.0.1:${config.port}`,token,identity}),{mode:0o600});
-  }catch(error){bridge.close();inbox.close();await unlink(lockPath).catch(()=>{});throw error;}
+  }catch(error){bridge.close();inbox.close();authorizations.close();await unlink(lockPath).catch(()=>{});throw error;}
   let closing=false;
-  const close=async()=>{if(closing)return;closing=true;await githubAuth.cancel();bridge.closeAllConnections();await new Promise<void>(resolve=>bridge.close(()=>resolve()));inbox.close();await unlink(join(dir,'runtime.json')).catch(()=>{});await unlink(lockPath).catch(()=>{});};
+  const close=async()=>{if(closing)return;closing=true;await githubAuth.cancel();bridge.closeAllConnections();await new Promise<void>(resolve=>bridge.close(()=>resolve()));inbox.close();authorizations.close();await unlink(join(dir,'runtime.json')).catch(()=>{});await unlink(lockPath).catch(()=>{});};
   process.once('SIGTERM',()=>{void close().then(()=>process.exit(0));});process.once('SIGINT',()=>{void close().then(()=>process.exit(0));});
   return {core,bridge,close};
 }

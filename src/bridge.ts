@@ -34,7 +34,7 @@ function confirmationResult(request: IncomingMessage,response: ServerResponse,ti
   response.end(`<!doctype html><html lang="en"><title>AIPOCH Connector</title><h1>${escape(title)}</h1><p>${escape(message)}</p>${result?`<pre>${escape(JSON.stringify(result,null,2))}</pre>`:''}</html>`);
 }
 export function createBridge(core: ConnectorCore, options: Options) {
-  const tickets = new Map<string, {pairingId?: string; actionId?:string; expiresAt: number}>();
+  const tickets = new Map<string, {pairingId?: string; actionId?:string; authorizations?:boolean; expiresAt: number}>();
   const actions = new Map<string,{display:unknown;execute:()=>Promise<unknown>;state:'pending'|'running'|'complete'|'declined'|'failed';result?:unknown;expiresAt:number}>();
   const server = createServer(async (request, response) => {
     response.setHeader('Cache-Control','no-store'); response.setHeader('Referrer-Policy','no-referrer');
@@ -54,17 +54,25 @@ export function createBridge(core: ConnectorCore, options: Options) {
         response.setHeader('Access-Control-Allow-Methods','GET, POST, DELETE, OPTIONS');
         response.setHeader('Access-Control-Allow-Headers','Authorization, Content-Type');
         if (request.method === 'OPTIONS') { response.writeHead(204); response.end(); return; }
+        if(path==='/v1/capabilities' && request.method==='GET')return send(response,core.capabilities());
+        const authorization=path.match(/^\/v1\/authorizations\/([a-f0-9-]{36})\/(challenge|resume|revoke)$/);
+        if(authorization&&request.method==='POST'){
+          const input=await body(request);
+          if(authorization[2]==='challenge')return send(response,core.authorizationChallenge(authorization[1],origin,input));
+          if(authorization[2]==='resume')return send(response,await core.resumeAuthorization(authorization[1],origin,input));
+          return send(response,core.revokeAuthorizationProof(authorization[1],origin,input));
+        }
         if (path === '/v1/pairings' && request.method === 'POST') {
           const input = await body(request);
           if (input.protocolVersion !== PROTOCOL_VERSION || typeof input.attemptId !== 'string' || !/^[\w.-]{1,200}$/.test(input.attemptId))
             throw new ConnectorError('unsupported_protocol','The connection protocol or attempt is not supported.');
-          return send(response, await core.pair(origin, input.attemptId));
+          return send(response, await core.pair(origin, input.attemptId,input.browserAuthorization));
         }
         const pairing = path.match(/^\/v1\/pairings\/([a-f0-9-]{36})$/);
         if (pairing && request.method === 'GET') return send(response,await core.pollPairing(pairing[1],auth,origin));
         if (path === '/v1/session' && request.method === 'GET') {
           const session = await core.session(auth,origin);
-          return send(response,{id:session.id,expiresAt:session.expiresAt,hostReady:true});
+          return send(response,{id:session.id,expiresAt:session.expiresAt,hostReady:true,...(session.authorizationId?{authorizationId:session.authorizationId}:{})});
         }
         if (path === '/v1/session' && request.method === 'DELETE') return send(response,await core.disconnect(auth,origin));
         if (path === '/v1/references' && request.method === 'POST') return send(response,await core.receive(await body(request),auth,origin));
@@ -87,11 +95,21 @@ export function createBridge(core: ConnectorCore, options: Options) {
           if(!action || action.expiresAt<=Date.now())throw new ConnectorError('action_expired','The local action record expired. Check the durable project or file result before considering another operation.',410);
           return send(response,{actionId:actionResult[1],status:action.state,result:action.result});
         }
+        if(path==='/admin/authorizations'&&request.method==='GET')return send(response,core.listAuthorizations());
+        if(path==='/admin/authorizations/manage'&&request.method==='POST'){
+          core.listAuthorizations();
+          for(const [key,ticket] of tickets)if(ticket.expiresAt<=Date.now())tickets.delete(key);
+          const ticket=randomBytes(32).toString('base64url'),expiresAt=Date.now()+600_000;
+          tickets.set(ticket,{authorizations:true,expiresAt});
+          return send(response,{url:`http://${expectedHost}/local/authorizations?ticket=${ticket}`,expiresAt});
+        }
+        const authorization=path.match(/^\/admin\/authorizations\/([a-f0-9-]{36})\/revoke$/);
+        if(authorization&&request.method==='POST')return send(response,core.revokeAuthorization(authorization[1]));
         if (path === '/admin/pairings' && request.method === 'GET') return send(response,core.pendingPairings());
         const pairing = path.match(/^\/admin\/pairings\/([a-f0-9-]{36})\/(approve|deny|review)$/);
         if (pairing && request.method === 'POST') {
           const input = await body(request);
-          if (pairing[2] === 'approve') return send(response,await core.approvePairing(pairing[1],input.code,input.origin));
+          if (pairing[2] === 'approve') return send(response,await core.approvePairing(pairing[1],input.code,input.origin,input.remember===true));
           if (pairing[2] === 'deny') return send(response,core.denyPairing(pairing[1]));
           const pending = core.pendingPairings().find(row => row.id === pairing[1]);
           if (!pending) throw new ConnectorError('pairing_missing','This request is no longer pending.',404);
@@ -125,6 +143,26 @@ export function createBridge(core: ConnectorCore, options: Options) {
           return send(response,core.inbox.links(url.searchParams.get('projectId') ?? '',host.hostId ?? host.instanceId));
         }
         if (options.adminHandler) return send(response,await options.adminHandler(path,request.method ?? 'GET', request.method==='POST' ? await body(request) : Object.fromEntries(url.searchParams)));
+      } else if(path==='/local/authorizations') {
+        if(origin&&origin!==`http://${expectedHost}`)throw new ConnectorError('origin_denied','Manage authorizations on the local Connector page.',403);
+        const token=url.searchParams.get('ticket')??'',ticket=tickets.get(token);
+        if(!ticket?.authorizations||ticket.expiresAt<=Date.now())throw new ConnectorError('confirmation_expired','Open a fresh browser authorization management page from Open-Science.',410);
+        if(request.method==='POST'){
+          const input=await body(request,true);
+          if(tickets.get(token)!==ticket||ticket.expiresAt<=Date.now())throw new ConnectorError('confirmation_expired','This management page expired.',410);
+          if(input.decision!=='revoke'||typeof input.authorizationId!=='string'||!/^[a-f0-9-]{36}$/.test(input.authorizationId))throw new ConnectorError('invalid_decision','Choose an authorization to forget.');
+          core.revokeAuthorization(input.authorizationId);
+          if(request.headers.accept?.includes('application/json'))return send(response,{revoked:true});
+          response.writeHead(303,{Location:`/local/authorizations?ticket=${token}`});response.end();return;
+        }
+        if(request.method==='GET'){
+          const nonce=randomBytes(24).toString('base64url');
+          response.setHeader('Content-Security-Policy',`default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'`);
+          const date=(value:number)=>new Date(value).toISOString();
+          const rows=core.listAuthorizations().map(row=>`<section><h2>${escape(row.browserName)}</h2><p>Website: <strong>${escape(row.origin)}</strong></p><p>Status: ${escape(row.status)} · Created: ${date(row.createdAt)}<br>Last used: ${date(row.lastUsedAt)}<br>Idle expiry: ${date(row.expiresAt)}</p><details><summary>Browser credential fingerprint</summary><code>${escape(row.fingerprint)}</code></details>${row.status!=='revoked'?`<form method="post"><input type="hidden" name="authorizationId" value="${row.id}"><button name="decision" value="revoke">Forget authorization</button></form>`:''}</section>`).join('');
+          response.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});
+          response.end(`<!doctype html><html lang="en"><meta name="viewport" content="width=device-width"><title>Remembered browsers | AIPOCH Connector</title><style>body{font:16px system-ui;max-width:720px;margin:6vh auto;padding:24px;color:#203833;background:#f7f9f7}section{padding:24px;margin:20px 0;border:1px solid #b9c9c2;background:white}h2{font-size:22px}strong,code{overflow-wrap:anywhere}button{font:inherit;padding:12px 18px;margin-top:16px;cursor:pointer}p{line-height:1.6}</style><h1>Remembered browsers</h1><p>Each authorization belongs to this Connector installation, one exact website and one browser credential. Forgetting immediately ends every connection using that authorization. It does not delete received references or affect other browsers. An offline website learns about revocation when it next contacts Connector.</p>${rows||'<p>No browser authorizations have been saved.</p>'}<script nonce="${nonce}">document.querySelectorAll('form').forEach(form=>form.addEventListener('submit',async event=>{event.preventDefault();const data=new URLSearchParams(new FormData(form,event.submitter));form.querySelector('button').disabled=true;try{const response=await fetch(form.action,{method:'POST',headers:{Accept:'application/json'},body:data});const result=await response.json();if(!response.ok)throw new Error(result.error?.message||'Could not confirm revocation.');location.reload();}catch(error){const message=document.createElement('p');message.setAttribute('role','alert');message.textContent=error.message;form.after(message);}}));</script></html>`);return;
+        }
       } else if (path === '/local/confirm') {
         if (origin && origin !== `http://${expectedHost}`) throw new ConnectorError('origin_denied','Confirm in the local Connector page.',403);
         const token=url.searchParams.get('ticket') ?? '';
@@ -160,14 +198,14 @@ export function createBridge(core: ConnectorCore, options: Options) {
           if(tickets.get(token)!==ticket || ticket.expiresAt<=Date.now())throw new ConnectorError('confirmation_expired','This confirmation was already handled or expired.',410);
           if(!['approve','deny'].includes(input.decision))throw new ConnectorError('invalid_decision','Choose an action on the confirmation page.');
           tickets.delete(token);
-          if (input.decision==='approve') await core.approvePairing(pending.id,pending.verificationCode,pending.origin);
+          if (input.decision==='approve') await core.approvePairing(pending.id,pending.verificationCode,pending.origin,input.remember==='true');
           else core.denyPairing(pending.id);
           confirmationResult(request,response,'Connection decision saved','Return to AIPOCH Network.'); return;
         }
         if (request.method === 'GET') {
           const script=confirmationScript(response);
           response.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});
-            response.end(`<!doctype html><html lang="en"><meta name="viewport" content="width=device-width"><title>Connect AIPOCH Network</title><style>body{font:17px system-ui;max-width:560px;margin:12vh auto;padding:24px;color:#203833;background:#f7f9f7}h1{font-size:28px}strong{overflow-wrap:anywhere}code{display:block;font-size:32px;letter-spacing:4px;margin:24px 0}button{font:inherit;padding:12px 22px;border:1px solid #b9c9c2;border-radius:8px;cursor:pointer}button[value=approve]{background:#155e4b;color:white}</style><h1>Connect this website to Open-Science?</h1><p>Website: <strong>${escape(pending.origin)}</strong></p><p>Check that this code matches the website:</p><code>${escape(pending.verificationCode)}</code><p>Allow this website to send research references to the local Connector inbox and check its own receipts for 30 minutes. GitHub credentials, private project lists and research execution are not shared.</p><form method="post"><button name="decision" value="approve">Connect Open-Science</button> <button name="decision" value="deny">Decline</button></form>${script}</html>`); return;
+            response.end(`<!doctype html><html lang="en"><meta name="viewport" content="width=device-width"><title>Connect AIPOCH Network</title><style>body{font:17px system-ui;max-width:560px;margin:12vh auto;padding:24px;color:#203833;background:#f7f9f7}h1{font-size:28px}strong{overflow-wrap:anywhere}code{display:block;font-size:32px;letter-spacing:4px;margin:24px 0}button{font:inherit;padding:12px 22px;border:1px solid #b9c9c2;border-radius:8px;cursor:pointer}button[value=approve]{background:#155e4b;color:white}</style><h1>Connect this website to Open-Science?</h1><p>Website: <strong>${escape(pending.origin)}</strong></p><p>Check that this code matches the website:</p><code>${escape(pending.verificationCode)}</code><p>Allow this website to send research references to the local Connector inbox and check its own receipts for 30 minutes. GitHub credentials, private project lists and research execution are not shared.</p><form method="post">${pending.rememberAvailable?`<p>Browser: <strong>${escape(pending.browserName!)}</strong></p><details><summary>Browser credential fingerprint</summary><code style="font-size:13px;letter-spacing:0;overflow-wrap:anywhere">${escape(pending.keyFingerprint!)}</code></details><p><label><input type="checkbox" name="remember" value="true" checked> Remember this browser</label><br>Restore this connection after refreshing or reopening this browser. Authorization expires after 90 days without use. You can forget it in Remembered browsers. Each reference still needs an explicit review and send.</p>`:''}<button name="decision" value="approve">Connect Open-Science</button> <button name="decision" value="deny">Decline</button></form>${script}</html>`); return;
         }
       }
       throw new ConnectorError('not_found','This Connector endpoint does not exist.',404);

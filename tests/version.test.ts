@@ -10,7 +10,7 @@ test('MCP handshake, runtime identity and manifest share product version with wo
  const server=createMcpServer('/synthetic',{request:async()=>({ready:false})});
  const client=new Client({name:'version-test',version:'1'});const [a,b]=InMemoryTransport.createLinkedPair();
  try{await server.connect(b);await client.connect(a);assert.equal(client.getServerVersion()?.version,pkg.version);
- assert.equal((await runtimeVersion()).packageVersion,pkg.version);assert.equal((await client.listTools()).tools.length,20);
+ assert.equal((await runtimeVersion()).packageVersion,pkg.version);assert.equal((await client.listTools()).tools.length,22);
  assert.equal((await client.callTool({name:'connection_status',arguments:{}})).isError,undefined);
  }finally{await client.close();await server.close();}
 });

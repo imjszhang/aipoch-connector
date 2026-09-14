@@ -6,7 +6,7 @@ The browser API is an independently versioned local transport. It consumes the e
 
 Default origin: `http://127.0.0.1:47821`. The server listens on the loopback address and validates its exact Host header. Public `/v1/` requests must carry an explicitly allowed Origin: `https://aipoch.network` by default, or (from alpha.4 unless disabled) a canonical HTTP origin whose hostname is exactly `localhost`, `127.0.0.1` or `[::1]`, with any port. Explicit configured origins remain additive. Local HTTPS, LAN addresses, hostname aliases/suffixes and malformed or noncanonical origins are not implicitly allowed. Redirected/token-bearing arbitrary origins are not discovery endpoints. CORS preflight allows GET, POST, DELETE and Authorization/Content-Type; CORS is not authentication.
 
-Pairing lasts 180,000 ms. Approved sessions last 1,800,000 ms and bind the exact origin and authenticated host instance. All timestamps are Unix milliseconds. Pairing/session credentials exist only in runtime memory and expire on restart; inbox receipts remain on disk. A missing or changed host invalidates affected sessions. The host's authenticated readiness says nothing about an AI provider or research runtime being configured.
+Pairing lasts 180,000 ms. Approved sessions last 1,800,000 ms and bind the exact origin and authenticated host instance. All timestamps are Unix milliseconds. Pairing/session bearer credentials exist only in runtime memory and expire on restart; inbox receipts remain on disk. The additive [persistent browser authorization 1.0](persistent-authorization.md) extension stores public-key grants separately and can issue new sessions after verified recovery. A missing or changed host invalidates affected sessions. The host's authenticated readiness says nothing about an AI provider or research runtime being configured.
 
 ## Pairing and sessions
 
@@ -21,7 +21,7 @@ An approved poll returns `{status:'approved', session:{id,token,expiresAt,protoc
 
 Approval happens on a trusted local surface. `review_connection` requests a short-lived, private confirmation ticket through the owner-authenticated administrative API and opens `/local/confirm?ticket=…`. The human checks origin and code and submits the decision. The ticket is not a daemon/session token, must not be shared in chat/logs, and becomes unusable when expired, consumed, or its pairing is no longer pending. No website endpoint approves pairing. The local CLI's explicit approve command requires the exact pending pairing ID, code and origin.
 
-The Network adapter checks `/v1/session` after approval, then periodically verifies the current session. It keeps credentials only in private memory and re-verifies after refresh/new tabs. Cancelling browser waiting does not create a remote cancellation claim; unused pairing requests expire.
+The Network adapter checks `/v1/session` after approval, then periodically verifies the current session. It keeps session bearer credentials only in private memory. Consumers supporting the persistent extension can retain a nonextractable signing key and request fresh verified sessions after refresh/new tabs; older consumers pair again. Cancelling browser waiting does not create a remote cancellation claim; unused pairing requests expire.
 
 ## Receive an exact reference
 

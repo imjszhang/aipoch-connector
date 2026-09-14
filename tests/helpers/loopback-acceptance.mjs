@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, randomBytes, generateKeyPairSync, sign } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
@@ -160,12 +160,32 @@ export async function verifyLoopback(root, source = false) {
     await assert.rejects(run('setup', '--loopback-http', 'maybe'), error => /loopback-http/.test(error.stderr));
     assert.equal(await readFile(join(dir, 'config.json'), 'utf8'), beforeInvalid);
     assert.equal((await runtimeRecord(dir)).identity.runtimeId, first.runtime.runtimeId);
+    // Candidate persistent extension: prove actual runtime storage survives controlled restarts.
+    const rememberedOrigin='https://aipoch.network';
+    const capabilities=await(await call('/v1/capabilities',{origin:rememberedOrigin})).json();
+    const connectorId=capabilities.persistentAuthorization.connectorId;
+    const browserKeys=generateKeyPairSync('ec',{namedCurve:'prime256v1'}),browserJwk=browserKeys.publicKey.export({format:'jwk'});
+    const rememberedPair=await(await call('/v1/pairings',{origin:rememberedOrigin,method:'POST',body:{protocolVersion:'1.0',attemptId:'persistent-package',browserAuthorization:{version:'1.0',publicKey:browserJwk,browserName:'Synthetic package browser'}}})).json();
+    await cli('pair','approve',rememberedPair.pairingId,'--code',rememberedPair.verificationCode,'--origin',rememberedOrigin,'--remember','yes');
+    const remembered=await(await call(`/v1/pairings/${rememberedPair.pairingId}`,{origin:rememberedOrigin,token:rememberedPair.pollToken})).json();
+    assert.equal(remembered.authorization.connectorId,connectorId);
+    assert.equal((await cli('authorizations','list')).length,1);
     const closed = await cli('setup', '--loopback-http', 'deny');
     assert.equal(closed.action, 'restarted'); assert.notEqual(closed.runtime.runtimeId, first.runtime.runtimeId);
     assert.notEqual(closed.runtime.configSha256, first.runtime.configSha256);
     assert.equal((await configuration(dir)).allowLoopbackHttp, false); record = await runtimeRecord(dir);
     for (const origin of origins) await denied(origin);
     await allowed('https://aipoch.network');
+    assert.equal((await(await call('/v1/capabilities',{origin:rememberedOrigin})).json()).persistentAuthorization.connectorId,connectorId);
+    assert.equal((await call('/v1/session',{origin:rememberedOrigin,token:remembered.session.token})).status,401);
+    const resumeChallenge=await(await call(`/v1/authorizations/${remembered.authorization.id}/challenge`,{origin:rememberedOrigin,method:'POST',body:{version:'1.0',connectorId,purpose:'resume'}})).json();
+    const resumedResponse=await call(`/v1/authorizations/${remembered.authorization.id}/resume`,{origin:rememberedOrigin,method:'POST',body:{version:'1.0',connectorId,challengeId:resumeChallenge.challengeId,signature:sign('sha256',Buffer.from(resumeChallenge.challenge),{key:browserKeys.privateKey,dsaEncoding:'ieee-p1363'}).toString('base64url')}});
+    assert.equal(resumedResponse.status,200);const resumed=await resumedResponse.json();
+    assert.notEqual(resumed.session.id,remembered.session.id);assert.equal(resumed.authorization.id,remembered.authorization.id);
+    assert.equal((await call('/v1/session',{origin:rememberedOrigin,token:resumed.session.token})).status,200);
+    assert.deepEqual(await cli('authorizations','revoke',remembered.authorization.id),{revoked:true});
+    assert.equal((await call('/v1/session',{origin:rememberedOrigin,token:resumed.session.token})).status,401);
+    assert.equal((await cli('authorizations','list'))[0].status,'revoked');
     const preserved = await cli('setup'); assert.equal(preserved.action, 'unchanged');
     assert.equal((await configuration(dir)).allowLoopbackHttp, false);
     const explicit = await cli('setup', '--origin', pair.origin);
@@ -195,7 +215,7 @@ export async function verifyLoopback(root, source = false) {
       'The fixture must never receive research execution or project creation');
     return { mode: 'synthetic-public-sdk-http', localOrigins: origins.length, defaultAndDisabled: true,
       cliSetup: true, exactOriginIsolation: true, controlledRestart: true, durableReceiptSha256: receipt.contentSha256,
-      associationsAndOperationsPreserved: true, browserTest: false };
+      associationsAndOperationsPreserved: true, persistentAuthorizationRestart:true, cliGrantRevoke:true, browserTest: false };
   } finally {
     let stopped = !runtimeStarted;
     try {

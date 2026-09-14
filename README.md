@@ -39,7 +39,25 @@ The public Open-Science SDK/CLI is pinned and included under `vendor/open-scienc
 
 If a browser does not open the local confirmation page, use `aipoch-connector pair list` followed by `aipoch-connector pair review PAIRING_ID`. CLI users who have compared the exact website and code can instead run `pair approve PAIRING_ID --code MATCHING_CODE --origin https://aipoch.network`. Never paste tokens or the private confirmation URL into a chat.
 
-The Connector uses `http://127.0.0.1:47821`. `https://aipoch.network` and HTTP pages on the exact hostnames `localhost`, `127.0.0.1` and `[::1]` at any port are allowed by default. No LAN IPs, hostname suffixes or other loopback aliases are implicitly allowed. Set `setup --loopback-http deny` for only the explicit origin list, or `setup --loopback-http allow` to restore the default. Additional exact origins can still be added with `--origin`; this remains effective even when the implicit policy is disabled; successful setup verifies the active configuration and restarts that same data-directory core when required. Pair again after a restart; durable receipts remain. An older core without verifiable runtime identity requires an explicit owner stop before setup. Changing `--port` does not change the Network website's fixed endpoint. HTTPS-to-loopback browser support remains subject to actual browser verification; a failed connection does not prove Open-Science is uninstalled.
+The Connector uses `http://127.0.0.1:47821`. `https://aipoch.network` and HTTP pages on the exact hostnames `localhost`, `127.0.0.1` and `[::1]` at any port are allowed by default. No LAN IPs, hostname suffixes or other loopback aliases are implicitly allowed. Set `setup --loopback-http deny` for only the explicit origin list, or `setup --loopback-http allow` to restore the default. Additional exact origins can still be added with `--origin`; this remains effective even when the implicit policy is disabled; successful setup verifies the active configuration and restarts that same data-directory core when required. Ordinary sessions require pairing again after a restart; supported remembered authorizations can recover a new session. Durable receipts remain. An older core without verifiable runtime identity requires an explicit owner stop before setup. Changing `--port` does not change the Network website's fixed endpoint. HTTPS-to-loopback browser support remains subject to actual browser verification; a failed connection does not prove Open-Science is uninstalled.
+
+## Manage authorized browsers
+
+The candidate persistent-authorization extension adds a default-selected **Remember this browser** option to the local confirmation page when the website supports a persistent browser credential. Uncheck it for a single 30-minute session. Remembering restores a fresh session after a page refresh, browser restart or normal Connector restart; the workbench must authenticate successfully before Network displays Connected. Authorization expires after 90 days without effective use. Reference review/send and research execution remain separate decisions. See the [versioned contract and threat model](docs/persistent-authorization.md); actual browser acceptance is recorded separately.
+
+In Open-Science, ask AIPOCH Connector to **manage browser authorizations**. Its `manage_browser_authorizations` tool opens the local **Remembered browsers** page, with exact website origins, browser labels, credential fingerprints, creation/last-use dates and **Forget authorization** for each active grant. The read-only `list_browser_authorizations` tool also lists this information. Labels are browser-provided hints, not authenticated device identity. The management page can revoke a grant even while Open-Science is offline if Connector is running. Private management URLs must not be copied into chat.
+
+Local owners can use:
+
+```sh
+aipoch-connector authorizations manage
+aipoch-connector authorizations list
+aipoch-connector authorizations revoke AUTHORIZATION_ID
+```
+
+Network **Disconnect** ends the current session and pauses its own automatic recovery without deleting the remembered authorization; explicit Connect can restore it. **Forget authorization** invalidates every session and tab using that browser credential. Other browsers and exact website origins retain their separate grants. An offline website cannot confirm server revocation: after discarding its local credential it directs you here to revoke the remaining server record. Already received references remain in the inbox. Clearing browser data loses the credential and requires new pairing; deleting the Connector data directory also creates a new installation identity, preventing old credentials from silently recovering.
+
+A local owner who explicitly wants a remembered CLI-approved pairing must additionally supply `--remember yes` to `pair approve`; omission remains session-only. Approval is bound to the public key already captured when that pairing began; the CLI cannot replace it.
 
 ## Continue with the received research
 

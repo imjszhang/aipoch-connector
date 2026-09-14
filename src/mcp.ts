@@ -7,7 +7,7 @@ import { adminRequest, ensureRuntime } from './runtime.js';
 
 export function openLocalConfirmation(url:string) {
   const parsed=new URL(url);
-  if(parsed.protocol!=='http:' || parsed.hostname!=='127.0.0.1' || parsed.pathname!=='/local/confirm')throw new Error('Invalid local confirmation page.');
+  if(parsed.protocol!=='http:' || parsed.hostname!=='127.0.0.1' || !['/local/confirm','/local/authorizations'].includes(parsed.pathname))throw new Error('Invalid local confirmation page.');
   const program=process.platform==='darwin'?'open':process.platform==='win32'?undefined:'xdg-open';
   if(!program)throw new Error('Local confirmation opening is not supported on this platform yet. Use the Connector CLI.');
   const child=spawn(program,[url],{stdio:'ignore'});child.on('error',()=>{});child.unref();
@@ -41,6 +41,11 @@ export function createMcpServer(dataDir:string, dependencies: {
   register('review_connection','Open the local confirmation page for the user to compare website and code. This tool cannot approve the connection.',{pairingId:z.string()},'', 'POST',false,async({pairingId})=>{
     const review=await request(dataDir,`/admin/pairings/${encodeURIComponent(pairingId)}/review`,'POST',{});
     openConfirmation(review.url);return{origin:review.origin,verificationCode:review.verificationCode,status:'waiting_for_user',message:'A local confirmation page was opened. The user must compare the code and choose Connect Open-Science.'};
+  });
+  register('list_browser_authorizations','List remembered browser origins, labels, last use and expiry. Browser names are display hints, not authenticated browser identity.',{},'/admin/authorizations','GET');
+  register('manage_browser_authorizations','Open the local Remembered browsers page to inspect and forget a specific authorization. This tool opens the page without revoking anything.',{},'','POST',false,async()=>{
+    const result=await request(dataDir,'/admin/authorizations/manage','POST',{});
+    openConfirmation(result.url);return{status:'management_opened',expiresAt:result.expiresAt,message:'The local Remembered browsers page is open. Forgetting an authorization ends all of its current sessions. The private page URL is not shared.'};
   });
   register('search_network','Search the validated public research catalog.',{query:z.string(),limit:z.number().int().min(1).max(100).optional(),kind:z.string().optional()},'/admin/catalog/search');
   register('get_network_object','Read the complete current catalog object by stable ID.',{id:z.string()},'/admin/catalog/get');
