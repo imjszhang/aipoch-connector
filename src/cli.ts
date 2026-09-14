@@ -16,10 +16,14 @@ const output=(value:unknown)=>process.stdout.write(JSON.stringify(value,null,2)+
 async function main() {
   const command=args.shift() ?? 'help';
   if(command==='help'||command==='--help') {
-    process.stdout.write(`AIPOCH Connector\n\nsetup [--config-root PATH] [--origin URL] [--port NUMBER] [--catalog-url MANIFEST_URL] [--github-client-id CLIENT_ID]\nserve | status | stop | mcp\npair list | pair review ID | pair approve ID --code CODE --origin URL | pair deny ID\ninbox list | inbox show REQUEST_ID\noperations list | operations show OPERATION_ID\nprojects list | projects create NAME --operation-id ID --host-id ID\nassociate REQUEST_ID PROJECT_ID --host-id ID\nsearch QUERY | inspect OBJECT_ID\ngithub auth status | start | cancel | logout\ngithub resolve URL [--ref REF] [--path PATH]\ngithub preview URL --ref COMMIT --path PATH\ngithub acquire URL --ref COMMIT --path PATH --sha256 DIGEST --destination NEW_DIRECTORY --operation-id ID\n\nAll commands accept --data-dir PATH. Setup registers tools in a running Open-Science instance.\nNo command starts Open-Science or executes research.\n`); return;
+    process.stdout.write(`AIPOCH Connector\n\nsetup [--config-root PATH] [--origin URL] [--loopback-http allow|deny] [--port NUMBER] [--catalog-url MANIFEST_URL] [--github-client-id CLIENT_ID]\nserve | status | stop | mcp\npair list | pair review ID | pair approve ID --code CODE --origin URL | pair deny ID\ninbox list | inbox show REQUEST_ID\noperations list | operations show OPERATION_ID\nprojects list | projects create NAME --operation-id ID --host-id ID\nassociate REQUEST_ID PROJECT_ID --host-id ID\nsearch QUERY | inspect OBJECT_ID\ngithub auth status | start | cancel | logout\ngithub resolve URL [--ref REF] [--path PATH]\ngithub preview URL --ref COMMIT --path PATH\ngithub acquire URL --ref COMMIT --path PATH --sha256 DIGEST --destination NEW_DIRECTORY --operation-id ID\n\nAll commands accept --data-dir PATH. Setup registers tools in a running Open-Science instance.\nNo command starts Open-Science or executes research.\n`); return;
   }
   if(command==='setup') {
-    const config=await configuration(dataDir);const root=option('config-root'),origin=option('origin'),port=option('port'),catalogUrl=option('catalog-url'),githubClientId=option('github-client-id');
+    const config=await configuration(dataDir);const root=option('config-root'),origin=option('origin'),port=option('port'),catalogUrl=option('catalog-url'),githubClientId=option('github-client-id'),loopbackHttp=option('loopback-http');
+    if(loopbackHttp!==undefined){
+      if(!['allow','deny'].includes(loopbackHttp))throw new Error('Use --loopback-http allow or deny.');
+      config.allowLoopbackHttp=loopbackHttp==='allow';
+    }
     if(root)config.openScienceConfigRoot=resolve(root);
     if(origin && !config.origins.includes(origin))config.origins.push(origin);
     if(port)config.port=Number(port);

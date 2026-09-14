@@ -4,9 +4,11 @@ AIPOCH Connector brings research discovered on [AIPOCH Network](https://aipoch.n
 
 GitHub remains the source of code, documentation, identity and collaboration. Existing public repositories work without an AIPOCH manifest or prior Network membership. Network stays a static, anonymously useful website; it does not receive GitHub credentials or the Open-Science daemon token.
 
-**Source version: `0.1.0-alpha.3`.** [GitHub releases](https://github.com/imjszhang/aipoch-connector/releases) contain published packages. The previous `0.1.0-alpha.1` release established the following verification evidence. Hosted CI and release checks passed 101 tests; real local installation, 20-tool discovery, reference receipt, project association, file acquisition and recovery were verified against an isolated Open-Science development host. The [production Chrome/macOS flow](docs/verification/production-browser.md) also passed pairing, reviewed resource delivery with a matching visible/durable receipt, disconnect and receipt retention after a Network recovery fix. [Real GitHub App authorization](docs/verification/github-authorization.md), macOS Keychain readback and authenticated public-source reads passed. The package name `aipoch-connector` is a candidate name, **not a claim that this project is published on npm or owns that registry name**. Do not install by the bare registry name on the basis of this README. Use this checkout or a reviewed release tarball.
+**Source version: `0.1.0-alpha.4`.** [GitHub releases](https://github.com/imjszhang/aipoch-connector/releases) contain published packages. The previous `0.1.0-alpha.1` release established the following verification evidence. Hosted CI and release checks passed 101 tests; real local installation, 20-tool discovery, reference receipt, project association, file acquisition and recovery were verified against an isolated Open-Science development host. The [production Chrome/macOS flow](docs/verification/production-browser.md) also passed pairing, reviewed resource delivery with a matching visible/durable receipt, disconnect and receipt retention after a Network recovery fix. [Real GitHub App authorization](docs/verification/github-authorization.md), macOS Keychain readback and authenticated public-source reads passed. The package name `aipoch-connector` is a candidate name, **not a claim that this project is published on npm or owns that registry name**. Do not install by the bare registry name on the basis of this README. Use this checkout or a reviewed release tarball.
 
 Alpha.3 fixes MCP product-version reporting and fixed-file operation replay. It upgrades the inbox to schema 2; older operation records remain queryable but may require explicit reconciliation. Read the [repair and upgrade notes](docs/releases/0.1.0-alpha.3.md) before upgrading.
+
+Alpha.4 also permits HTTP websites on `localhost`, `127.0.0.1` and `[::1]` at any port by default, including existing configurations without an explicit policy. Each exact website still requires human pairing approval. Use `setup --loopback-http deny` to disable this implicit permission; explicit origins remain allowed. See [the local HTTP policy and upgrade notes](docs/releases/0.1.0-alpha.4.md).
 
 ## Install
 
@@ -18,7 +20,7 @@ From this repository:
 npm ci
 npm run check
 npm pack --ignore-scripts
-npm install --global --ignore-scripts ./aipoch-connector-0.1.0-alpha.3.tgz
+npm install --global --ignore-scripts ./aipoch-connector-0.1.0-alpha.4.tgz
 aipoch-connector help
 ```
 
@@ -37,7 +39,7 @@ The public Open-Science SDK/CLI is pinned and included under `vendor/open-scienc
 
 If a browser does not open the local confirmation page, use `aipoch-connector pair list` followed by `aipoch-connector pair review PAIRING_ID`. CLI users who have compared the exact website and code can instead run `pair approve PAIRING_ID --code MATCHING_CODE --origin https://aipoch.network`. Never paste tokens or the private confirmation URL into a chat.
 
-The Connector uses `http://127.0.0.1:47821`. Only `https://aipoch.network` is allowed by default. A development website must be explicitly added, for example `aipoch-connector setup --origin http://127.0.0.1:4186`; successful setup verifies the active configuration and restarts that same data-directory core when required. Pair again after a restart; durable receipts remain. An older core without verifiable runtime identity requires an explicit owner stop before setup. Changing `--port` does not change the Network website's fixed endpoint. HTTPS-to-loopback browser support remains subject to actual browser verification; a failed connection does not prove Open-Science is uninstalled.
+The Connector uses `http://127.0.0.1:47821`. `https://aipoch.network` and HTTP pages on the exact hostnames `localhost`, `127.0.0.1` and `[::1]` at any port are allowed by default. No LAN IPs, hostname suffixes or other loopback aliases are implicitly allowed. Set `setup --loopback-http deny` for only the explicit origin list, or `setup --loopback-http allow` to restore the default. Additional exact origins can still be added with `--origin`; this remains effective even when the implicit policy is disabled; successful setup verifies the active configuration and restarts that same data-directory core when required. Pair again after a restart; durable receipts remain. An older core without verifiable runtime identity requires an explicit owner stop before setup. Changing `--port` does not change the Network website's fixed endpoint. HTTPS-to-loopback browser support remains subject to actual browser verification; a failed connection does not prove Open-Science is uninstalled.
 
 ## Continue with the received research
 

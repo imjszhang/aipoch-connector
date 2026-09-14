@@ -1,3 +1,4 @@
+import { effectiveAllowLoopbackHttp } from './origin-policy.js';
 import { packageManifest, packageVersion } from './version.js';
 import { acquisitionIdentity } from './acquisition.js';
 import { mkdir, readFile, writeFile, open, unlink, lstat, realpath, readdir, rename } from 'node:fs/promises';
@@ -20,7 +21,7 @@ import { CredentialStore } from './credentials.js';
 // Public application identity; authorization still requires each user's consent.
 export const DEFAULT_GITHUB_CLIENT_ID = 'Iv23liAWWYs4LOqm1YAg';
 
-export interface Configuration { version: 1; port: number; origins: string[]; openScienceConfigRoot?: string; githubClientId?: string; catalogManifestUrl?: string }
+export interface Configuration { version: 1; port: number; origins: string[]; allowLoopbackHttp?: boolean; openScienceConfigRoot?: string; githubClientId?: string; catalogManifestUrl?: string }
 export const defaultDataDir = () => join(homedir(),process.platform==='darwin'?'Library/Application Support/AIPOCH Connector':'.local/share/aipoch-connector');
 export async function ownerDirectory(dir: string) {
   await mkdir(dir,{recursive:true,mode:0o700});
@@ -32,18 +33,19 @@ export async function configuration(dir: string): Promise<Configuration> {
   await ownerDirectory(dir);
   let value: Configuration;
   try { value=JSON.parse(await readFile(join(dir,'config.json'),'utf8')); }
-  catch (e:any) { if(e.code!=='ENOENT') throw new Error('Connector configuration is invalid; the existing file was preserved.'); return {version:1,port:DEFAULT_PORT,origins:['https://aipoch.network'],githubClientId:DEFAULT_GITHUB_CLIENT_ID}; }
+  catch (e:any) { if(e.code!=='ENOENT') throw new Error('Connector configuration is invalid; the existing file was preserved.'); return {version:1,port:DEFAULT_PORT,origins:['https://aipoch.network'],allowLoopbackHttp:true,githubClientId:DEFAULT_GITHUB_CLIENT_ID}; }
   if(value.version!==1 || !Number.isInteger(value.port) || value.port<1024 || value.port>65535 || !Array.isArray(value.origins)) throw new Error('Unsupported Connector configuration.');
   for(const origin of value.origins) {
     const u=new URL(origin);
     if(u.origin!==origin || (u.protocol!=='https:' && !(u.protocol==='http:' && ['127.0.0.1','localhost','[::1]'].includes(u.hostname)))) throw new Error('Origins must be exact HTTPS origins or explicitly configured loopback development origins.');
   }
-  return {...value, githubClientId: value.githubClientId ?? DEFAULT_GITHUB_CLIENT_ID};
+  return {...value, allowLoopbackHttp: effectiveAllowLoopbackHttp(value.allowLoopbackHttp), githubClientId: value.githubClientId ?? DEFAULT_GITHUB_CLIENT_ID};
 }
 export async function saveConfiguration(dir:string,config:Configuration) {
+  const value = {...config, allowLoopbackHttp: effectiveAllowLoopbackHttp(config.allowLoopbackHttp)};
   await ownerDirectory(dir);
   const temporary=join(dir,`config-${randomUUID()}.tmp`);
-  try { await writeFile(temporary,JSON.stringify(config,null,2)+'\n',{mode:0o600,flag:'wx'}); await rename(temporary,join(dir,'config.json')); }
+  try { await writeFile(temporary,JSON.stringify(value,null,2)+'\n',{mode:0o600,flag:'wx'}); await rename(temporary,join(dir,'config.json')); }
   finally { await unlink(temporary).catch(()=>{}); }
 }
 export interface RuntimeIdentity {
@@ -56,7 +58,7 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const dataDirectoryId = async (dir: string) => digest(await realpath(dir));
 export function configurationDigest(config: Configuration): string {
   return digest(JSON.stringify({ version: config.version, port: config.port,
-    origins: [...new Set(config.origins)].sort(),
+    origins: [...new Set(config.origins)].sort(), allowLoopbackHttp: effectiveAllowLoopbackHttp(config.allowLoopbackHttp),
     openScienceConfigRoot: config.openScienceConfigRoot ? resolve(config.openScienceConfigRoot) : null,
     githubClientId: config.githubClientId ?? DEFAULT_GITHUB_CLIENT_ID, catalogManifestUrl: config.catalogManifestUrl ?? null }));
 }
@@ -211,7 +213,7 @@ export async function serve(dir:string) {
     const result=await (await github()).materialize(input.source,identity.destination,{expectedSha256:input.expectedSha256});
     inbox.finishOperation(input.operationId,result);return result;
   };
-  const bridge=createBridge(core,{adminToken:token,origins:config.origins,prepareAction:async(kind,input)=>{
+  const bridge=createBridge(core,{adminToken:token,origins:config.origins,allowLoopbackHttp:config.allowLoopbackHttp,prepareAction:async(kind,input)=>{
     if(!input || typeof input!=='object')throw new ConnectorError('invalid_action','An exact action is required.');
     // Owner-page approval is bound to this captured plan. Later MCP arguments cannot change it.
     const plan=structuredClone(input);

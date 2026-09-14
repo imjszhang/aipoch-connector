@@ -4,7 +4,7 @@ The browser API is an independently versioned local transport. It consumes the e
 
 ## Endpoint and authority
 
-Default origin: `http://127.0.0.1:47821`. The server listens on the loopback address and validates its exact Host header. Public `/v1/` requests must carry an explicitly allowed Origin: `https://aipoch.network` by default; an exact loopback development origin can be configured locally. Redirected/token-bearing arbitrary origins are not discovery endpoints. CORS preflight allows GET, POST, DELETE and Authorization/Content-Type; CORS is not authentication.
+Default origin: `http://127.0.0.1:47821`. The server listens on the loopback address and validates its exact Host header. Public `/v1/` requests must carry an explicitly allowed Origin: `https://aipoch.network` by default, or (from alpha.4 unless disabled) a canonical HTTP origin whose hostname is exactly `localhost`, `127.0.0.1` or `[::1]`, with any port. Explicit configured origins remain additive. Local HTTPS, LAN addresses, hostname aliases/suffixes and malformed or noncanonical origins are not implicitly allowed. Redirected/token-bearing arbitrary origins are not discovery endpoints. CORS preflight allows GET, POST, DELETE and Authorization/Content-Type; CORS is not authentication.
 
 Pairing lasts 180,000 ms. Approved sessions last 1,800,000 ms and bind the exact origin and authenticated host instance. All timestamps are Unix milliseconds. Pairing/session credentials exist only in runtime memory and expire on restart; inbox receipts remain on disk. A missing or changed host invalidates affected sessions. The host's authenticated readiness says nothing about an AI provider or research runtime being configured.
 
@@ -135,3 +135,11 @@ Browser protocol remains 1.0 and MCP protocol negotiation is unchanged. MCP prod
 `acquire-v1` hashes a canonical JSON object containing `version: 1`, `kind: acquire_github_file`, the resolved `source`, `expectedSha256`, and an absolute normalized `destination`. Only `source.resolvedAt` and `source.repositoryLicenseObservation.observedAt` are removed for hashing. All other fields, including licenses/conditions and ref, remain binding; object keys are sorted recursively and array order is preserved. Full original input is retained unchanged separately. Completed replay returns the stored result; pending replay returns `result_unconfirmed`; changed identity returns `operation_conflict`.
 
 Schema 2 adds `operation_evidence` atomically without rewriting old records. Missing legacy evidence allows only an exact original full-input hash match; otherwise `legacy_operation_unverifiable` (409) requires owner reconciliation. Older binaries reject the new database version. No reverse migration or guessed legacy identity is provided. Existing destination errors retain their `destination_exists` code through the owner CLI.
+
+## Alpha.4 local HTTP source policy
+
+Browser protocol stays 1.0; no new browser capability or database schema is introduced. Owner configuration `allowLoopbackHttp?: boolean` defaults to true, including absent legacy fields. `setup --loopback-http allow|deny` changes it; explicit false persists. The effective policy participates in the configuration digest and controlled runtime restart.
+
+The implicit matcher requires successful URL parsing, exact equality of `url.origin` and the incoming origin, HTTP protocol and one of the three exact hostnames. It does not resolve DNS or recognize aliases. Missing/opaque origins, userinfo, paths, queries, fragments, noncanonical port/IP spelling and composed origins are rejected. Both preflight and actual `/v1/` requests use the same matcher and reflect only the accepted origin with `Vary: Origin`. `/admin/` continues to reject requests carrying Origin regardless of this setting.
+
+Direct library construction of the bridge without the new option remains explicit-list-only; the configured product runtime passes its effective policy explicitly. Pairing/session origin binding, host lifecycle, human approval and exact catalog review remain unchanged. Local website HTTP permission does not extend permitted catalog URLs, GitHub URLs or `public_location`.

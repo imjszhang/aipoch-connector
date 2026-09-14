@@ -8,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 
 import { verifyAcquisition } from './helpers/acquisition-acceptance.mjs';
+import { verifyLoopback } from './helpers/loopback-acceptance.mjs';
 
 const execute = promisify(execFile);
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -43,8 +44,9 @@ try {
   }
   assert.equal(await readFile(join(packageRoot, 'vendor/open-science/index.d.mts'), 'utf8'), await readFile(join(packageRoot, 'vendor/open-science/index.d.ts'), 'utf8'));
   await verifyAcquisition(packageRoot);
+  await verifyLoopback(packageRoot);
   if(process.argv.includes('--live')) process.stdout.write(JSON.stringify(await verifyAcquisition(packageRoot,false,true))+'\n');
-  process.stdout.write(`Packed and independently installed aipoch-connector ${installed.version}; CLI help, public SDK integrity and local inbox import, isolated CLI recovery and stdio version/discovery checks passed. Only a temporary Connector runtime was started; no host was started.\n`);
+  process.stdout.write(`Packed and independently installed aipoch-connector ${installed.version}; CLI help, public SDK integrity and local inbox import, isolated CLI recovery, stdio version/discovery, default/disabled local HTTP origins, CLI setup, session isolation and durable restart checks passed. Temporary Connector runtimes and a synthetic public SDK HTTP fixture were used; no desktop host was started and this is not browser evidence.\n`);
 } finally {
   await rm(temporary, { recursive: true, force: true });
 }
