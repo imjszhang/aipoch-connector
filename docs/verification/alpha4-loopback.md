@@ -1,7 +1,8 @@
 # Alpha.4 local HTTP acceptance — 2026-09-14
 
-Status: implementation, local automated checks, installed-package acceptance and browser transport
-fixture acceptance passed. Hosted review/merge/release and downloaded asset verification are pending.
+Status: implemented, reviewed, merged and published. Local/hosted checks, installed-package
+acceptance, browser transport fixtures and original downloaded-release verification passed.
+The full real Network + human-approved host chain remains outside this new evidence, as detailed below.
 
 ## Scope and compatibility
 
@@ -67,7 +68,24 @@ Without those user/environment steps, no new complete real-host/browser compatib
 be inferred from the automated fixtures. The plan permits merge/release with this limitation
 explicitly recorded; it does not permit calling that full live chain verified.
 
-## Publication
+## Publication and downloaded-original acceptance
 
-Pending implementation PR review, hosted checks, merge, release tag/assets and downloaded-original
-asset checksum/install acceptance. No active user runtime or host is upgraded by these tests.
+- [PR #4](https://github.com/imjszhang/aipoch-connector/pull/4) merged at `2026-09-14T09:19:33Z`
+  as `3ef23c6950b85f0557ed17f9d04d6f3efea1be06`.
+- PR checks `34827145579` and `34827149210`, main checks `34827321417`, tag checks
+  `34827361194`, and release workflow `34827361201` all succeeded. The release log explicitly
+  reports 118/118 tests plus independent installed-package acceptance.
+- [Release v0.1.0-alpha.4](https://github.com/imjszhang/aipoch-connector/releases/tag/v0.1.0-alpha.4)
+  was published at `2026-09-14T09:21:05Z`; its annotated tag identifies the merged commit above.
+- Original downloaded asset: `aipoch-connector-0.1.0-alpha.4.tgz`, **236081 bytes**.
+- Independently computed SHA-256 matched `SHA256SUMS` and GitHub's asset digest:
+  `a060319866fbe5b2339c1f1609ee64ed54770f912d668bc3391af9e808089178`.
+- `node tests/package-smoke.mjs /absolute/downloaded.tgz` independently installed the original
+  asset and passed SDK integrity, CLI help/inbox, acquisition replay/restart/no-overwrite/unknown
+  recovery, stdio version/20-tool/read, default/disabled local origins, CLI setup, origin/session
+  isolation and retained durable receipt/associations/operations after controlled restart.
+
+This source follow-up adds publication evidence to the immutable pre-publication documentation
+inside the asset. No tag or release asset was overwritten. No npm publication, Network deployment,
+active user runtime upgrade or host launch was performed. Local main is synchronized with the
+published implementation and this evidence follow-up; no real-host compatibility is inferred.
